@@ -50,7 +50,7 @@ st.markdown("""
 @st.cache_resource
 def load_models():
     yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")  # model deteksi objek
-    classifier = tf.keras.models.load_model("model/Emmy_Nora_Laporan2 (3).h5")  # model klasifikasi utama
+    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")  # model klasifikasi utama
     return yolo_model, classifier
 
 with st.spinner("💫 Sedang memuat model kamu... tunggu bentar ya 💕"):
