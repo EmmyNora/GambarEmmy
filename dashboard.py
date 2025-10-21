@@ -117,7 +117,7 @@ if menu in ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"]:
                     # MODE KLASIFIKASI
                     # ==========================
                     elif menu == "Klasifikasi Gambar":
-                        img_resized = img.resize((224, 224))
+                        img_resized = img.resize((128, 128))
                         img_array = image.img_to_array(img_resized)
                         img_array = np.expand_dims(img_array, axis=0) / 255.0
 
@@ -148,10 +148,10 @@ if menu == "Perbandingan Dua Model":
         img = Image.open(uploaded_file)
         st.image(img, caption="Gambar yang akan diuji", use_container_width=True)
 
-        modelA = tf.keras.models.load_model("model/Emmy_Nora_Laporan2 (3).h5")
+        modelA = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")
         modelB = tf.keras.models.load_model("model/Model_Lain.h5")  # tambahkan model kedua kamu
 
-        img_resized = img.resize((224, 224))
+        img_resized = img.resize((128, 128))
         img_array = image.img_to_array(img_resized)
         img_array = np.expand_dims(img_array, axis=0) / 255.0
 
