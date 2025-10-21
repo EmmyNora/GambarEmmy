@@ -114,20 +114,28 @@ if menu in ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"]:
                         st.markdown("💡 **Saran:** Jika hasil kurang akurat, coba gambar dengan pencahayaan lebih terang 🌞")
 
                     # ==========================
-                    # MODE KLASIFIKASI
+                    # MODE KLASIFIKASI GAMBAR
                     # ==========================
                     elif menu == "Klasifikasi Gambar":
+                        # Ubah ukuran gambar ke 128x128 (sesuai model kamu)
                         img_resized = img.resize((128, 128))
                         img_array = image.img_to_array(img_resized)
                         img_array = np.expand_dims(img_array, axis=0) / 255.0
 
+                        # Prediksi
                         prediction = classifier.predict(img_array)
                         class_index = np.argmax(prediction)
                         confidence = np.max(prediction)
 
-                        st.write(f"🎯 **Hasil Prediksi:** {class_index}")
+                        # 🔸 Mapping label sesuai urutan waktu training
+                        labels = ["Indoor", "Outdoor"]  # ubah urutannya sesuai class_indices saat training
+                        predicted_label = labels[class_index]
+
+                        # Tampilkan hasil prediksi
+                        st.write(f"🎯 **Hasil Prediksi:** {predicted_label}")
                         st.progress(float(confidence))
 
+                        # Pesan berdasarkan tingkat keyakinan
                         if confidence > 0.85:
                             st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
                         elif confidence > 0.6:
@@ -161,8 +169,13 @@ if menu == "Perbandingan Dua Model":
         classA, confA = np.argmax(predA), np.max(predA)
         classB, confB = np.argmax(predB), np.max(predB)
 
-        st.write(f"🎀 **Model A (Laporan2)**: Prediksi {classA}, Kepercayaan {confA:.2f}")
-        st.write(f"💫 **Model B (Lainnya)**: Prediksi {classB}, Kepercayaan {confB:.2f}")
+        # Mapping label biar gak cuma angka
+        labels = ["Indoor", "Outdoor"]
+        labelA = labels[classA]
+        labelB = labels[classB]
+
+        st.write(f"🎀 **Model A (Laporan2)**: Prediksi {labelA}, Kepercayaan {confA:.2f}")
+        st.write(f"💫 **Model B (Lainnya)**: Prediksi {labelB}, Kepercayaan {confB:.2f}")
 
         fig = px.bar(
             x=["Model A", "Model B"],
