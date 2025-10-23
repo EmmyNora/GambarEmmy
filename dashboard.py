@@ -72,7 +72,18 @@ Unggah beberapa gambar sekaligus dengan **drag & drop** untuk hasil yang cepat d
 st.sidebar.header("🎀 Pilih Mode")
 menu = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 st.sidebar.markdown("---")
-st.sidebar.info("Cukup *drag & drop* gambar kamu ke kotak di bawah 💕")
+if menu == "Deteksi Objek (YOLO)":
+    st.sidebar.info("""
+    🔍 **Model YOLO (.pt)** mendeteksi karakter:
+    - 🟡 Spongebob  
+    - 🩷 Patrick  
+    """)
+elif menu == "Klasifikasi Gambar":
+    st.sidebar.info("""
+    🧠 **Model Keras (.h5)** mengklasifikasi gambar:
+    - 🏠 Indoor  
+    - 🌳 Outdoor  
+    """)
 
 # ==========================
 # UPLOAD GAMBAR
