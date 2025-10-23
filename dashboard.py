@@ -46,8 +46,8 @@ st.markdown("""
 # ==========================
 @st.cache_resource
 def load_models():
-    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")  # model deteksi objek
-    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")  # model klasifikasi
+    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")  # model deteksi Spongebob vs Patrick
+    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")  # model klasifikasi Indoor vs Outdoor
     return yolo_model, classifier
 
 with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
@@ -61,8 +61,8 @@ st.title("🌷 PinkVision: Cute Image & Object Detector 🌷")
 st.markdown("""
 Selamat datang di **PinkVision** 💖  
 Aplikasi ini bisa melakukan:
-- 🔍 Deteksi objek menggunakan **YOLO (.pt)**
-- 🧠 Klasifikasi gambar menggunakan **Model Keras (.h5)**  
+- 🔍 Deteksi objek menggunakan **YOLO (.pt)** *(Spongebob vs Patrick)*
+- 🧠 Klasifikasi gambar menggunakan **Model Keras (.h5)** *(Indoor vs Outdoor)*  
 Unggah beberapa gambar sekaligus dengan **drag & drop** untuk hasil yang cepat dan lucu ✨
 """)
 
@@ -87,17 +87,27 @@ if uploaded_files:
     st.write(f"🖼️ Total gambar diunggah: **{len(uploaded_files)} file**")
 
     for uploaded_file in uploaded_files:
-        img = Image.open(uploaded_file)
+        img = Image.open(uploaded_file).convert("RGB")
         st.image(img, caption=f"✨ {uploaded_file.name}", use_container_width=True)
 
+        # ==========================
+        # MODE DETEKSI OBJEK
+        # ==========================
         if menu == "Deteksi Objek (YOLO)":
             with st.spinner(f"🔍 Mendeteksi objek pada {uploaded_file.name}..."):
-                results = yolo_model(img)
-                result_img = results[0].plot()
-                st.image(result_img, caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
-                st.success("✅ Deteksi selesai!")
-                st.markdown("💡 **Tips:** Gunakan gambar dengan pencahayaan cukup agar hasil deteksi lebih akurat 🌞")
+                results = yolo_model.predict(img, conf=0.7, verbose=False)  # threshold tinggi biar gak asal deteksi
+                boxes = results[0].boxes
 
+                if boxes is not None and len(boxes) > 0:
+                    st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
+                    st.success("✅ Objek terdeteksi dengan baik!")
+                else:
+                    st.warning("🚫 Tidak ada Spongebob atau Patrick yang terdeteksi.")
+                    st.info("💡 Gambar ini sepertinya bukan domain deteksi objek (misal gambar indoor/outdoor).")
+
+        # ==========================
+        # MODE KLASIFIKASI GAMBAR
+        # ==========================
         elif menu == "Klasifikasi Gambar":
             with st.spinner(f"🧠 Mengklasifikasi {uploaded_file.name}..."):
                 img_resized = img.resize((128, 128))
@@ -111,17 +121,16 @@ if uploaded_files:
                 labels = ["Indoor", "Outdoor"]  # sesuaikan dengan modelmu
                 predicted_label = labels[class_index]
 
-                st.write(f"🎯 **Hasil Prediksi:** {predicted_label}")
-                st.progress(float(confidence))
-
-                if confidence > 0.85:
-                    st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
-                elif confidence > 0.6:
-                    st.warning("🌤️ Model agak ragu, tapi masih cukup yakin.")
+                if confidence >= 0.7:
+                    st.write(f"🎯 **Hasil Prediksi:** {predicted_label} ({confidence:.2f})")
+                    st.progress(float(confidence))
+                    if confidence > 0.85:
+                        st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
+                    elif confidence > 0.6:
+                        st.warning("🌤️ Model agak ragu, tapi masih cukup yakin.")
                 else:
-                    st.error("😅 Model kurang yakin. Coba gambar lain yang lebih jelas ya!")
-
-                st.markdown("💡 **Saran:** Gunakan gambar fokus dan tidak blur agar hasil lebih akurat 📷")
+                    st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
+                    st.markdown("💡 **Saran:** Gunakan gambar lingkungan dalam/luar ruangan yang jelas 📷")
 
 # ==========================
 # FOOTER
