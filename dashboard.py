@@ -129,4 +129,4 @@ st.markdown("""
 <div class='footer'>
     Made with 💕 by <b>Emmy Nora 🌷</b>
 </div>
-""", un
+""", unsafe_allow_html=True)
