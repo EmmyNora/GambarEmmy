@@ -13,28 +13,39 @@ from io import BytesIO
 st.set_page_config(page_title="💗 PinkVision", layout="wide")
 
 # -----------------------------
+# BACA GAMBAR DAN ENCODE BASE64
+# -----------------------------
+def get_base64_of_image(image_path):
+    with open(image_path, "rb") as img_file:
+        data = img_file.read()
+    return base64.b64encode(data).decode()
+
+# ubah nama sesuai gambar kamu
+bg_image = get_base64_of_image("design-removebg-preview.png")
+
+# -----------------------------
 # STYLE
 # -----------------------------
 st.markdown(
-    """
+    f"""
     <style>
     /* 🌸 Background gradasi pink lembut */
-    .stApp {
+    .stApp {{
         background: linear-gradient(180deg, #ffe6f0 0%, #ffb6d1 50%, #ff9ecb 100%);
         font-family: 'Poppins', sans-serif;
         overflow-x: hidden;
-    }
+    }}
 
     /* Sidebar */
-    [data-testid="stSidebar"] {
+    [data-testid="stSidebar"] {{
         background: rgba(255, 230, 240, 0.8);
         color: #4a0032;
         border-right: 2px solid rgba(255,150,180,0.25);
         box-shadow: 4px 0 18px rgba(255,100,150,0.1);
-    }
+    }}
 
     /* Judul utama */
-    .main-title {
+    .main-title {{
         text-align: center;
         font-size: 2.4rem;
         color: #b3005a;
@@ -42,10 +53,10 @@ st.markdown(
         text-shadow: 2px 2px 10px rgba(255,180,210,0.6);
         margin-top: 1.8rem;
         margin-bottom: 0.5rem;
-    }
+    }}
 
     /* Kotak upload gambar — diperkecil */
-    .upload-box {
+    .upload-box {{
         border: 3px dashed rgba(255,140,170,0.7);
         border-radius: 14px;
         padding: 20px;
@@ -54,41 +65,41 @@ st.markdown(
         text-align: center;
         background-color: rgba(255,255,255,0.5);
         box-shadow: 0 4px 18px rgba(255,150,180,0.1);
-    }
+    }}
 
     /* 🧁 Gambar SpongeBob & Patrick kanan bawah */
-    .stApp::after {
+    .stApp::after {{
         content: "";
         position: fixed;
         bottom: 0;
         right: 0;
         width: 320px;
         height: 320px;
-        background-image: url('design-removebg-preview.png');
+        background-image: url("data:image/png;base64,{bg_image}");
         background-size: contain;
         background-repeat: no-repeat;
-        opacity: 0.3;
+        opacity: 0.35;
         z-index: 0;
-    }
+    }}
 
-    .block-container {
+    .block-container {{
         position: relative;
         z-index: 10;
-    }
+    }}
 
     /* Footer */
-    .footer {
+    .footer {{
         text-align: center;
         color: #b3005a;
         font-weight: 600;
         margin-top: 3rem;
-    }
+    }}
 
-    @media (max-width: 600px) {
-        .main-title { font-size: 1.6rem; }
-        .upload-box { width: 85%; padding: 16px; }
-        .stApp::after { width: 180px; height: 180px; opacity: 0.3; }
-    }
+    @media (max-width: 600px) {{
+        .main-title {{ font-size: 1.6rem; }}
+        .upload-box {{ width: 85%; padding: 16px; }}
+        .stApp::after {{ width: 180px; height: 180px; opacity: 0.3; }}
+    }}
     </style>
     """,
     unsafe_allow_html=True,
