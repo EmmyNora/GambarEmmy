@@ -145,46 +145,6 @@ if menu in ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"]:
 
                         st.markdown("💡 **Saran:** Gunakan gambar jelas, tidak blur, agar hasil klasifikasi lebih akurat 📷")
 
-# ==========================
-# MODE: PERBANDINGAN DUA MODEL
-# ==========================
-if menu == "Perbandingan Dua Model":
-    st.subheader("⚖️ Perbandingan Dua Model Klasifikasi")
-
-    uploaded_file = st.file_uploader("📷 Unggah gambar untuk dibandingkan:", type=["jpg", "jpeg", "png"])
-    if uploaded_file:
-        img = Image.open(uploaded_file)
-        st.image(img, caption="Gambar yang akan diuji", use_container_width=True)
-
-        modelA = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")
-        modelB = tf.keras.models.load_model("model/Model_Lain.h5")  # tambahkan model kedua kamu
-
-        img_resized = img.resize((128, 128))
-        img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0) / 255.0
-
-        predA = modelA.predict(img_array)
-        predB = modelB.predict(img_array)
-
-        classA, confA = np.argmax(predA), np.max(predA)
-        classB, confB = np.argmax(predB), np.max(predB)
-
-        # Mapping label biar gak cuma angka
-        labels = ["Indoor", "Outdoor"]
-        labelA = labels[classA]
-        labelB = labels[classB]
-
-        st.write(f"🎀 **Model A (Laporan2)**: Prediksi {labelA}, Kepercayaan {confA:.2f}")
-        st.write(f"💫 **Model B (Lainnya)**: Prediksi {labelB}, Kepercayaan {confB:.2f}")
-
-        fig = px.bar(
-            x=["Model A", "Model B"],
-            y=[confA, confB],
-            color=["Model A", "Model B"],
-            text=[f"{confA:.2f}", f"{confB:.2f}"],
-            title="📊 Perbandingan Tingkat Kepercayaan Model"
-        )
-        st.plotly_chart(fig, use_container_width=True)
 
 # ==========================
 # MODE: GRAFIK AKURASI
