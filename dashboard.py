@@ -149,5 +149,3 @@ if uploaded_files:
 st.markdown("---")
 st.markdown("<center>Made with 💕 by <b>Emmy Nora</b> 🌸</center>", unsafe_allow_html=True)
 
-
-syntax ini udah pas cuma dibagian klasifikasi gambar kenapa pas aku masukin gambar spongebob masuk ke klasifikasiin outdoor/indoor harusnya kan ga ada 
