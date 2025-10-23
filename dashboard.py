@@ -13,131 +13,118 @@ from io import BytesIO
 st.set_page_config(page_title="💗 PinkVision", layout="wide")
 
 # -----------------------------
-# HELPERS
-# -----------------------------
-def image_to_data_uri(img_bytes: bytes, mime_type: str = "image/png") -> str:
-    """Encode image bytes to data URI for embedding in CSS."""
-    b64 = base64.b64encode(img_bytes).decode("utf-8")
-    return f"data:{mime_type};base64,{b64}"
-
-# -----------------------------
-# UI: Background selection (optional)
-# -----------------------------
-st.sidebar.markdown("## 🎨 Background (opsional)")
-bg_file = st.sidebar.file_uploader(
-    "Upload background image (.png/.jpg) — kalau tidak, akan pakai default",
-    type=["png", "jpg", "jpeg"]
-)
-
-# Default image (SpongeBob & Patrick)
-DEFAULT_BG_URL = "https://i.pinimg.com/736x/a1/aa/58/a1aa5870adbb34ef6e20b9e9d6c8deb6.jpg"
-
-# Prepare background source: either uploaded file -> data URI, or remote URL
-if bg_file:
-    raw = bg_file.read()
-    mime = "image/png" if bg_file.type == "image/png" else "image/jpeg"
-    bg_data_uri = image_to_data_uri(raw, mime)
-    bg_source = bg_data_uri
-else:
-    bg_source = DEFAULT_BG_URL
-
-# -----------------------------
-# STYLE: Gradient overlay + SpongeBob kecil di kanan bawah
+# STYLE
 # -----------------------------
 st.markdown(
-    f"""
+    """
     <style>
-    /* 🌸 Background utama dengan SpongeBob kecil di kanan bawah */
-    .stApp {{
-        background-color: #ffe6f0;
-        background-image:
-            linear-gradient(180deg, rgba(255,223,230,0.88), rgba(255,185,200,0.60)),
-            url("{bg_source}");
-        background-size: 300px auto;       /* kecilin SpongeBob */
-        background-position: right 30px bottom 30px;  /* pojok kanan bawah */
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+    /* 🌸 Background gradasi pink lembut */
+    .stApp {
+        background: linear-gradient(180deg, #ffe6f0 0%, #ffb6d1 50%, #ff9ecb 100%);
         font-family: 'Poppins', sans-serif;
         overflow-x: hidden;
-    }}
+    }
 
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, rgba(255,236,242,0.85), rgba(255,220,235,0.75));
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: rgba(255, 230, 240, 0.8);
         color: #4a0032;
-        border-right: 2px solid rgba(255,130,169,0.25);
-        box-shadow: 4px 0 18px rgba(255,100,150,0.08);
-        padding-top: 1rem;
-    }}
+        border-right: 2px solid rgba(255,150,180,0.25);
+        box-shadow: 4px 0 18px rgba(255,100,150,0.1);
+    }
 
     /* Judul utama */
-    .main-title {{
+    .main-title {
         text-align: center;
         font-size: 2.4rem;
         color: #b3005a;
         font-weight: 800;
-        text-shadow: 2px 2px 10px rgba(255,190,210,0.6);
+        text-shadow: 2px 2px 10px rgba(255,180,210,0.6);
         margin-top: 1.8rem;
-    }}
+        margin-bottom: 0.5rem;
+    }
 
-    /* Box upload gambar */
-    .upload-box {{
+    /* Kotak upload gambar — diperkecil */
+    .upload-box {
         border: 3px dashed rgba(255,140,170,0.7);
-        border-radius: 16px;
-        padding: 34px;
+        border-radius: 14px;
+        padding: 20px;
+        width: 60%;
+        margin: 20px auto;
         text-align: center;
-        background-color: rgba(255,255,255,0.60);
-        margin-top: 22px;
-        box-shadow: 0 6px 28px rgba(255,150,180,0.12);
-    }}
+        background-color: rgba(255,255,255,0.5);
+        box-shadow: 0 4px 18px rgba(255,150,180,0.1);
+    }
 
-    .block-container {{
+    /* Gambar SpongeBob kanan bawah */
+    .stApp::after {
+        content: "";
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 320px;
+        height: 320px;
+        background-image: url('https://i.pinimg.com/736x/a1/aa/58/a1aa5870adbb34ef6e20b9e9d6c8deb6.jpg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        opacity: 0.25;
+        z-index: 0;
+    }
+
+    .block-container {
         position: relative;
         z-index: 10;
-    }}
+    }
 
-    @media (max-width: 600px) {{
-        .main-title {{ font-size: 1.6rem; }}
-        .upload-box {{ padding: 20px; }}
-    }}
+    /* Footer */
+    .footer {
+        text-align: center;
+        color: #b3005a;
+        font-weight: 600;
+        margin-top: 3rem;
+    }
+
+    @media (max-width: 600px) {
+        .main-title { font-size: 1.6rem; }
+        .upload-box { width: 85%; padding: 16px; }
+        .stApp::after { width: 180px; height: 180px; opacity: 0.3; }
+    }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 # -----------------------------
-# PAGE CONTENT
+# SIDEBAR: Pilih Mode
 # -----------------------------
 st.sidebar.markdown(
-    '<div style="font-weight:800; color:#b3005a; font-size:18px;">🌸 Pilih Mode</div>',
+    '<div style="font-weight:800; color:#b3005a; font-size:18px;">🌷 Pilih Mode</div>',
     unsafe_allow_html=True
 )
+
 mode = st.sidebar.radio("", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
 if mode == "Deteksi Objek (YOLO)":
     st.sidebar.markdown("""
-    <div style="background: rgba(255,240,245,0.7); padding:10px; border-radius:10px; border:1px solid rgba(255,140,170,0.4);">
+    <div style="background: rgba(255,240,245,0.8); padding:10px; border-radius:10px; border:1px solid rgba(255,140,170,0.4);">
     🔍 <b>Deteksi Objek (YOLO)</b><br>
     Gunakan model YOLO (.pt) untuk mengenali karakter Spongebob 🧽 & Patrick 🌟
     </div>
     """, unsafe_allow_html=True)
 else:
     st.sidebar.markdown("""
-    <div style="background: rgba(255,240,245,0.7); padding:10px; border-radius:10px; border:1px solid rgba(255,140,170,0.4);">
+    <div style="background: rgba(255,240,245,0.8); padding:10px; border-radius:10px; border:1px solid rgba(255,140,170,0.4);">
     🏡 <b>Klasifikasi Gambar</b><br>
     Gunakan model Keras (.h5) untuk membedakan Indoor 🪴 dan Outdoor 🌤️
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown(
-    '<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>',
-    unsafe_allow_html=True
-)
+# -----------------------------
+# MAIN CONTENT
+# -----------------------------
+st.markdown('<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>', unsafe_allow_html=True)
 
-st.markdown(
-    '<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>',
-    unsafe_allow_html=True
-)
+st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
@@ -147,5 +134,7 @@ if uploaded_files:
         img = Image.open(file)
         st.image(img, caption=file.name, use_column_width=True)
 
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; color:#b3005a;'>Made with 💕 by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
+# -----------------------------
+# FOOTER
+# -----------------------------
+st.markdown("<div class='footer'>Made with 💕 by <b>Emmy Nora</b> 🌷</div>", unsafe_allow_html=True)
