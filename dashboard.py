@@ -4,144 +4,135 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
-import time
+import base64
+from io import BytesIO
 
-# ======== STYLE ========
-st.markdown("""
-<style>
-.stApp {
-    background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
-    font-family: 'Poppins', sans-serif;
-    overflow: hidden;
-}
+# -----------------------------
+# CONFIG
+# -----------------------------
+st.set_page_config(page_title="💗 PinkVision", layout="wide")
 
-/* Sidebar */
-[data-testid="stSidebar"] {
-    background: linear-gradient(to bottom, #ffe3eb, #ffc6d5, #ff9ec4);
-    color: #4a0032;
-    border-right: 3px solid #ff82a9;
-    box-shadow: 4px 0 15px rgba(255, 100, 150, 0.3);
-    padding-top: 1rem;
-}
+# -----------------------------
+# HELPERS
+# -----------------------------
+def image_to_data_uri(img_bytes: bytes, mime_type: str = "image/png") -> str:
+    """Encode image bytes to data URI for embedding in CSS."""
+    b64 = base64.b64encode(img_bytes).decode("utf-8")
+    return f"data:{mime_type};base64,{b64}"
 
-.sidebar-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #b3005a;
-    text-shadow: 1px 1px 3px #ffc0cb;
-    margin-bottom: 1rem;
-}
+# -----------------------------
+# UI: Background selection (optional)
+# -----------------------------
+st.sidebar.markdown("## 🎨 Background (opsional)")
+bg_file = st.sidebar.file_uploader("Upload background image (.png/.jpg) — kalau tidak, akan pakai default", type=["png","jpg","jpeg"])
 
-.desc-box {
-    background-color: rgba(255, 240, 245, 0.7);
-    border: 2px solid #ff8fab;
-    border-radius: 12px;
-    padding: 10px;
-    margin-top: 10px;
-    box-shadow: inset 0 0 10px rgba(255, 150, 180, 0.4);
-}
+# Default image (mirip gambar kedua pastel SpongeBob/Patrick).
+# Jika kamu punya URL lain yang pasti, ganti string ini.
+DEFAULT_BG_URL = "https://i.pinimg.com/736x/a1/aa/58/a1aa5870adbb34ef6e20b9e9d6c8deb6.jpg"
 
-/* Main title */
-.main-title {
-    text-align: center;
-    font-size: 2.3rem;
-    color: #b3005a;
-    font-weight: 800;
-    text-shadow: 2px 2px 6px #ffbad5;
-    margin-top: 2rem;
-}
+# Prepare background source: either uploaded file -> data URI, or remote URL
+if bg_file:
+    raw = bg_file.read()
+    # detect mime
+    mime = "image/png" if bg_file.type == "image/png" else "image/jpeg"
+    bg_data_uri = image_to_data_uri(raw, mime)
+    bg_source = bg_data_uri
+else:
+    # use remote URL directly
+    bg_source = DEFAULT_BG_URL
 
-/* Upload box */
-.upload-box {
-    border: 3px dashed #ff8fab;
-    border-radius: 15px;
-    padding: 30px;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.5);
-    margin-top: 20px;
-    box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
-}
+# -----------------------------
+# STYLE: Gradient overlay + background image
+# -----------------------------
+# We use multiple backgrounds: first the gradient (on top), then the image.
+# We also make sidebar and content semi-transparent so the wallpaper shows through.
+st.markdown(
+    f"""
+    <style>
+    /* Make whole app use the illustrated background with soft pink gradient overlay */
+    .stApp {{
+        background-image:
+            linear-gradient(180deg, rgba(255,223,230,0.88), rgba(255,185,200,0.60)),
+            url("{bg_source}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+    }}
 
-/* ========== Animasi Mengambang ========== */
-@keyframes floaty {
-    0% {transform: translateY(0px);}
-    50% {transform: translateY(-15px);}
-    100% {transform: translateY(0px);}
-}
+    /* Sidebar styling (semi-transparent so wallpaper is visible) */
+    [data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, rgba(255,236,242,0.85), rgba(255,220,235,0.75));
+        color: #4a0032;
+        border-right: 2px solid rgba(255,130,169,0.25);
+        box-shadow: 4px 0 18px rgba(255,100,150,0.08);
+        padding-top: 1rem;
+    }}
 
-.bg-item {
-    position: absolute;
-    opacity: 0.85;
-    z-index: -1;
-    animation: floaty 6s ease-in-out infinite;
-}
+    /* Ensure main content (cards, upload area) appear above background and remain readable */
+    .main-title {{
+        text-align: center;
+        font-size: 2.4rem;
+        color: #b3005a;
+        font-weight: 800;
+        text-shadow: 2px 2px 10px rgba(255,190,210,0.6);
+        margin-top: 1.8rem;
+    }}
 
-/* SpongeBob & Patrick (ikon kartun lucu) */
-.spongebob {
-    width: 120px;
-    bottom: 40px;
-    left: 10%;
-    animation-delay: 0s;
-}
-.patrick {
-    width: 100px;
-    bottom: 40px;
-    right: 10%;
-    animation-delay: 1.5s;
-}
+    .upload-box {{
+        border: 3px dashed rgba(255,140,170,0.7);
+        border-radius: 16px;
+        padding: 34px;
+        text-align: center;
+        background-color: rgba(255,255,255,0.60);
+        margin-top: 22px;
+        box-shadow: 0 6px 28px rgba(255,150,180,0.12);
+    }}
 
-/* Indoor plant & outdoor sun */
-.plant {
-    width: 90px;
-    top: 80px;
-    left: 20%;
-    animation-delay: 2s;
-}
-.sun {
-    width: 100px;
-    top: 40px;
-    right: 15%;
-    animation-delay: 3s;
-}
-</style>
-""", unsafe_allow_html=True)
+    /* Make sure internal Streamlit containers have a higher stacking context */
+    .block-container {{
+        position: relative;
+        z-index: 10;
+    }}
 
-# ======== SIDEBAR ========
-st.sidebar.markdown('<div class="sidebar-title">🌸 Pilih Mode</div>', unsafe_allow_html=True)
-mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+    /* Small adaptive tweaks for mobile */
+    @media (max-width: 600px) {{
+        .main-title {{ font-size: 1.6rem; }}
+        .upload-box {{ padding: 20px; }}
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# -----------------------------
+# PAGE CONTENT
+# -----------------------------
+st.sidebar.markdown('<div style="font-weight:800; color:#b3005a; font-size:18px;">🌸 Pilih Mode</div>', unsafe_allow_html=True)
+mode = st.sidebar.radio("", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
 if mode == "Deteksi Objek (YOLO)":
     st.sidebar.markdown("""
-    <div class="desc-box">
+    <div style="background: rgba(255,240,245,0.7); padding:10px; border-radius:10px; border:1px solid rgba(255,140,170,0.4);">
     🔍 <b>Deteksi Objek (YOLO)</b><br>
-    Gunakan model YOLO (.pt) untuk mengenali karakter seperti
-    <b>Spongebob</b> 🧽 dan <b>Patrick</b> 🌟 pada gambar yang kamu unggah!
+    Gunakan model YOLO (.pt) untuk mengenali karakter Spongebob 🧽 & Patrick 🌟
     </div>
     """, unsafe_allow_html=True)
 else:
     st.sidebar.markdown("""
-    <div class="desc-box">
+    <div style="background: rgba(255,240,245,0.7); padding:10px; border-radius:10px; border:1px solid rgba(255,140,170,0.4);">
     🏡 <b>Klasifikasi Gambar</b><br>
-    Gunakan model Keras (.h5) untuk membedakan gambar
-    <b>Indoor 🪴</b> dan <b>Outdoor 🌤️</b> secara otomatis!
+    Gunakan model Keras (.h5) untuk membedakan Indoor 🪴 dan Outdoor 🌤️
     </div>
     """, unsafe_allow_html=True)
 
-# ======== MAIN LAYOUT ========
 st.markdown('<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>', unsafe_allow_html=True)
 
-# ======== Animasi Background ========
-st.markdown(f"""
-<img src="data:image/png;base64,{open('/mnt/data/1cf0c3f3-4b91-4755-97f5-1df7bc2f3a60.png','rb').read().encode('base64').decode()}" class="bg-item spongebob">
-<img src="https://i.ibb.co/6bMmyxF/patrick.png" class="bg-item patrick">
-<img src="https://i.ibb.co/WyNYn4k/plant.png" class="bg-item plant">
-<img src="https://i.ibb.co/mT0kZwh/sun.png" class="bg-item sun">
-""", unsafe_allow_html=True)
-
-# ======== Upload Area ========
 st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
-
 uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+
 if uploaded_files:
     st.success("✨ Gambar berhasil diunggah!")
     for file in uploaded_files:
