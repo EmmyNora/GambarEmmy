@@ -56,7 +56,7 @@ st.markdown(
         box-shadow: 0 4px 18px rgba(255,150,180,0.1);
     }
 
-    /* Gambar SpongeBob kanan bawah */
+    /* 🧁 Gambar SpongeBob & Patrick kanan bawah */
     .stApp::after {
         content: "";
         position: fixed;
@@ -64,10 +64,10 @@ st.markdown(
         right: 0;
         width: 320px;
         height: 320px;
-        background-image: url('https://i.pinimg.com/736x/a1/aa/58/a1aa5870adbb34ef6e20b9e9d6c8deb6.jpg');
+        background-image: url('design-removebg-preview.png');
         background-size: contain;
         background-repeat: no-repeat;
-        opacity: 0.25;
+        opacity: 0.3;
         z-index: 0;
     }
 
@@ -138,3 +138,4 @@ if uploaded_files:
 # FOOTER
 # -----------------------------
 st.markdown("<div class='footer'>Made with 💕 by <b>Emmy Nora</b> 🌷</div>", unsafe_allow_html=True)
+
