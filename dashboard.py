@@ -4,129 +4,180 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
-import cv2
 
-# ============================#
-# 🌸 PAGE CONFIGURATION
-# ============================#
+# ==========================
+# KONFIGURASI HALAMAN
+# ==========================
 st.set_page_config(
-    page_title="PinkVision 💖",
-    page_icon="💗",
-    layout="wide",
+    page_title="💗 PinkVision: Cute Image & Object Detector 💗",
+    page_icon="🌸",
+    layout="wide"
 )
 
-# ============================#
-# 🌷 CUSTOM CSS (Pink Style)
-# ============================#
+# ==========================
+# STYLE (TETAP DARI SYNTAX PERTAMA, TANPA ANIMASI)
+# ==========================
 st.markdown("""
 <style>
-/* Background Gradient */
-[data-testid="stAppViewContainer"] {
-    background: linear-gradient(to bottom right, #ffd1dc, #ffb6c1);
-    color: #4a4a4a;
+/* Background gradiasi 3D */
+.stApp {
+    background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
 }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: #ffe4ec;
-    border-right: 3px solid #ff9eb5;
+    background: linear-gradient(to bottom, #ffe3eb, #ffc6d5, #ff9ec4);
+    color: #4a0032;
+    border-right: 3px solid #ff82a9;
+    box-shadow: 4px 0 15px rgba(255, 100, 150, 0.3);
+    padding-top: 1rem;
 }
 
-[data-testid="stSidebar"] h2 {
-    color: #ff4b8b;
+/* Sidebar content */
+.sidebar-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #b3005a;
+    text-shadow: 1px 1px 3px #ffc0cb;
+    margin-bottom: 1rem;
 }
 
-/* Section Box */
-.main-container {
-    background-color: #fff0f5;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 4px 15px rgba(255, 100, 150, 0.2);
+.desc-box {
+    background-color: rgba(255, 240, 245, 0.7);
+    border: 2px solid #ff8fab;
+    border-radius: 12px;
+    padding: 10px;
+    margin-top: 10px;
+    box-shadow: inset 0 0 10px rgba(255, 150, 180, 0.4);
+}
+
+/* Main title */
+.main-title {
     text-align: center;
-}
-
-/* Header */
-.title-text {
-    font-size: 36px;
-    color: #ff4b8b;
-    text-shadow: 1px 1px 4px rgba(255, 80, 120, 0.3);
+    font-size: 2.3rem;
+    color: #b3005a;
     font-weight: 800;
+    text-shadow: 2px 2px 6px #ffbad5;
+    margin-top: 2rem;
 }
 
-.subtitle-text {
-    font-size: 16px;
-    color: #6d4c57;
+/* Upload box */
+.upload-box {
+    border: 3px dashed #ff8fab;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-top: 20px;
+    box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
 }
 
 /* Footer */
 .footer {
     text-align: center;
-    color: #9b6b77;
-    font-size: 14px;
-    margin-top: 40px;
+    color: #b3005a;
+    font-weight: 500;
+    margin-top: 2rem;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ============================#
-# 🌼 SIDEBAR
-# ============================#
-st.sidebar.markdown("## 🌸 Pilih Mode")
+# ==========================
+# LOAD MODEL
+# ==========================
+@st.cache_resource
+def load_models():
+    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")  # path ke model YOLO kamu
+    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")  # path ke model Keras kamu
+    return yolo_model, classifier
+
+with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
+    yolo_model, classifier = load_models()
+st.success("✨ Model berhasil dimuat dengan sempurna! 🌸")
+
+# ==========================
+# SIDEBAR
+# ==========================
+st.sidebar.markdown('<div class="sidebar-title">🌸 Pilih Mode</div>', unsafe_allow_html=True)
 mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
-# ============================#
-# 💗 FUNGSI: DETEKSI YOLO
-# ============================#
-def yolo_detection(uploaded_image):
-    model = YOLO("model_yolo.pt")  # Ganti dengan path model kamu
-    results = model(uploaded_image)
-    for result in results:
-        img_with_boxes = result.plot()  # Gambar hasil deteksi
-        st.image(img_with_boxes, caption="Hasil Deteksi 💕", use_container_width=True)
-
-# ============================#
-# 💗 FUNGSI: KLASIFIKASI TENSORFLOW
-# ============================#
-def classify_image(uploaded_image):
-    model = tf.keras.models.load_model("model_klasifikasi.h5")  # Ganti path model kamu
-    img = uploaded_image.resize((224, 224))  # Sesuaikan resolusi model
-    x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
-    x = x / 255.0
-    preds = model.predict(x)
-    class_idx = np.argmax(preds)
-    confidence = np.max(preds)
-    st.success(f"🌼 Kelas Prediksi: {class_idx} (Kepercayaan: {confidence*100:.2f}%)")
-
-# ============================#
-# 🌷 MAIN CONTENT
-# ============================#
-st.markdown("<div class='main-container'>", unsafe_allow_html=True)
-st.markdown("<h1 class='title-text'>💖 PinkVision: Cute Image & Object Detector 💖</h1>", unsafe_allow_html=True)
-st.markdown("<p class='subtitle-text'>Seret dan lepas (drag & drop) gambar kamu di bawah ini 💕</p>", unsafe_allow_html=True)
-
-uploaded_file = st.file_uploader("Unggah gambar kamu di sini:", type=["jpg", "jpeg", "png"])
-
-if uploaded_file:
-    img = Image.open(uploaded_file)
-    st.image(img, caption="Gambar kamu 💞", use_container_width=True)
-
-    if mode == "Deteksi Objek (YOLO)":
-        st.subheader("🔍 Hasil Deteksi Objek")
-        yolo_detection(img)
-    else:
-        st.subheader("🧠 Hasil Klasifikasi Gambar")
-        classify_image(img)
+if mode == "Deteksi Objek (YOLO)":
+    st.sidebar.markdown("""
+    <div class="desc-box">
+    🔍 <b>Deteksi Objek (YOLO)</b><br>
+    Gunakan model YOLO (.pt) untuk mengenali karakter seperti
+    <b>Spongebob</b> 🧽 dan <b>Patrick</b> 🌟 pada gambar yang kamu unggah!
+    </div>
+    """, unsafe_allow_html=True)
 else:
-    st.info("✨ Belum ada gambar yang diunggah")
+    st.sidebar.markdown("""
+    <div class="desc-box">
+    🧠 <b>Klasifikasi Gambar</b><br>
+    Gunakan model Keras (.h5) untuk membedakan gambar
+    <b>Indoor 🪴</b> dan <b>Outdoor 🌤️</b> secara otomatis!
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
+# ==========================
+# MAIN HEADER
+# ==========================
+st.markdown('<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>', unsafe_allow_html=True)
+st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
 
-# ============================#
-# 🌸 FOOTER
-# ============================#
-st.markdown("""
-<div class='footer'>
-    Made with 💕 by <b>Emmy Nora 🌷</b>
-</div>
-""", unsafe_allow_html=True)
+# ==========================
+# UPLOAD & PROSES GAMBAR
+# ==========================
+uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+
+if uploaded_files:
+    st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
+
+    for file in uploaded_files:
+        img = Image.open(file).convert("RGB")
+        st.image(img, caption=f"🖼️ {file.name}", use_column_width=True)
+
+        # === MODE 1: DETEKSI OBJEK ===
+        if mode == "Deteksi Objek (YOLO)":
+            with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
+                results = yolo_model.predict(img, conf=0.6, verbose=False)
+                boxes = results[0].boxes
+
+                if boxes is not None and len(boxes) > 0:
+                    st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_column_width=True)
+                    st.success("✅ Objek berhasil terdeteksi!")
+                else:
+                    st.warning("🚫 Tidak ada objek yang terdeteksi.")
+                    st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
+
+        # === MODE 2: KLASIFIKASI GAMBAR ===
+        elif mode == "Klasifikasi Gambar":
+            with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
+                img_resized = img.resize((128, 128))
+                img_array = image.img_to_array(img_resized)
+                img_array = np.expand_dims(img_array, axis=0) / 255.0
+
+                prediction = classifier.predict(img_array)
+                class_index = np.argmax(prediction)
+                confidence = np.max(prediction)
+
+                labels = ["Indoor", "Outdoor"]
+                predicted_label = labels[class_index]
+
+                if confidence >= 0.7:
+                    st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
+                    st.progress(float(confidence))
+                    if confidence > 0.85:
+                        st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
+                    elif confidence > 0.6:
+                        st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
+                else:
+                    st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
+                    st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
+
+# ==========================
+# FOOTER
+# ==========================
+st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<p class='footer'>Made with 💕 by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
