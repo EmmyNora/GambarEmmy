@@ -14,6 +14,8 @@ st.markdown("""
         color: #6a004f;
         font-family: "Poppins", sans-serif;
     }
+    </style>
+""", unsafe_allow_html=True)
 
     /* ======== HEADER ======== */
     h1 {
