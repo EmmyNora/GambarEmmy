@@ -9,7 +9,7 @@ from PIL import Image
 # KONFIGURASI HALAMAN
 # ==========================
 st.set_page_config(
-    page_title="💗 PinkVision: Klasifikasi & Deteksi Objek 💗",
+    page_title="💗 PinkVision: Klasifikasi & Deteksi Object 💗",
     page_icon="🌸",
     layout="wide"
 )
