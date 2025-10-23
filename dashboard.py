@@ -9,13 +9,13 @@ from PIL import Image
 # KONFIGURASI HALAMAN
 # ==========================
 st.set_page_config(
-    page_title="💗 PinkVision: Cute Image & Object Detector 💗",
+    page_title="💗 PinkVision: Klasifikasi & Deteksi Objek 💗",
     page_icon="🌸",
     layout="wide"
 )
 
 # ==========================
-# STYLE (TETAP DARI SYNTAX PERTAMA, TANPA ANIMASI)
+# STYLE 
 # ==========================
 st.markdown("""
 <style>
