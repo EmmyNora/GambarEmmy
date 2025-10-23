@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 from ultralytics import YOLO
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
@@ -8,189 +7,147 @@ from PIL import Image
 import time
 
 # ==========================
-# 🔹 Setup environment 
+# KONFIGURASI HALAMAN
 # ==========================
-os.system("apt-get update -y && apt-get install -y libgl1 libglib2.0-0")
+st.set_page_config(
+    page_title="🌸 PinkVision: Smart & Cute AI 🌸",
+    page_icon="💖",
+    layout="wide"
+)
 
 # ==========================
-# 🔹 Load Models
+# CUSTOM CSS (TEMA PINK)
+# ==========================
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #ffe4e9;
+        color: #5c005c;
+        font-family: "Poppins", sans-serif;
+    }
+    .stButton>button {
+        background-color: #ff85a2;
+        color: white;
+        border-radius: 12px;
+        padding: 8px 20px;
+        font-weight: bold;
+    }
+    .stButton>button:hover {
+        background-color: #ff4d79;
+    }
+    .stSidebar {
+        background-color: #fff0f5;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ==========================
+# LOAD MODEL
 # ==========================
 @st.cache_resource
 def load_models():
-    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")  
-    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")  
+    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")  # model deteksi Spongebob vs Patrick
+    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")  # model klasifikasi Indoor vs Outdoor
     return yolo_model, classifier
 
-yolo_model, classifier = load_models()
+with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
+    yolo_model, classifier = load_models()
+st.success("✨ Model berhasil dimuat dengan sempurna! 🌸")
 
 # ==========================
-# Session state
+# HEADER
 # ==========================
-if 'preview_imgs' not in st.session_state:
-    st.session_state.preview_imgs = []
-if 'result_imgs' not in st.session_state:
-    st.session_state.result_imgs = []
-if 'result_labels' not in st.session_state:
-    st.session_state.result_labels = []
-if 'upload_key' not in st.session_state:
-    st.session_state.upload_key = 0  # untuk reset file_uploader
+st.title("🌷 PinkVision: Cute Image & Object Detector 🌷")
+st.markdown("""
+Selamat datang di **PinkVision** 💖  
+Aplikasi ini bisa melakukan:
+- 🔍 Deteksi objek menggunakan **YOLO (.pt)** *(Spongebob vs Patrick)*
+- 🧠 Klasifikasi gambar menggunakan **Model Keras (.h5)** *(Indoor vs Outdoor)*  
+Unggah beberapa gambar sekaligus dengan **drag & drop** untuk hasil yang cepat dan lucu ✨
+""")
 
 # ==========================
-# Fungsi refresh
+# SIDEBAR
 # ==========================
-def refresh_dashboard():
-    st.session_state.preview_imgs = []
-    st.session_state.result_imgs = []
-    st.session_state.result_labels = []
-    st.session_state.upload_key += 1  # ganti key agar file_uploader reset
+st.sidebar.header("🎀 Pilih Mode")
+menu = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+st.sidebar.markdown("---")
+if menu == "Deteksi Objek (YOLO)":
+    st.sidebar.info("""
+    🔍 **Model YOLO (.pt)** mendeteksi karakter:
+    - 🟡 Spongebob  
+    - 🩷 Patrick  
+    """)
+elif menu == "Klasifikasi Gambar":
+    st.sidebar.info("""
+    🧠 **Model Keras (.h5)** mengklasifikasi gambar:
+    - 🏠 Indoor  
+    - 🌳 Outdoor  
+    """)
 
 # ==========================
-# 🎨 UI Utama
+# UPLOAD GAMBAR
 # ==========================
-st.set_page_config(page_title="SmartVision", layout="wide")
-
-# Judul berwarna biru
-st.markdown(
-    '<h2 style="background-color:#1E90FF;color:white;padding:10px;border-radius:10px;text-align:center;">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</h2>',
-    unsafe_allow_html=True
+uploaded_files = st.file_uploader(
+    "📸 Seret dan lepas (drag & drop) beberapa gambar di sini:",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True
 )
 
-# Kalimat kreatif awal tetap ada
-st.markdown(
-    """
-Selamat datang di SmartVision, aplikasi berbasis kecerdasan buatan yang siap membantu kamu menganalisis gambar secara otomatis! 🤖  
-Aplikasi ini memiliki dua fitur unggulan:
-
-- 🍽 Deteksi Objek (YOLO) → Mengenali keberadaan sendok dan garpu dalam gambar secara cepat dan akurat.  
-- 🧱 Klasifikasi Gambar (CNN) → Membedakan antara retakan dan permukaan normal menggunakan teknologi deep learning.
-
-Unggah gambar favoritmu dan biarkan AI bekerja! 🚀
-"""
-)
-
-# ==========================
-# Sidebar
-# ==========================
-st.sidebar.markdown('<div style="background-color:#1E90FF;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Pilih Mode Analisis</div>', unsafe_allow_html=True)
-menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
-
-st.sidebar.markdown('<div style="background-color:#1E90FF;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar (1-2)</div>', unsafe_allow_html=True)
-st.sidebar.button("🔄 Refresh", on_click=refresh_dashboard)
-st.sidebar.markdown("ℹ Silakan refresh untuk memprediksi gambar baru.")
-
-# Upload 1-2 gambar, reset otomatis jika tombol refresh ditekan
-uploaded_files = st.sidebar.file_uploader(
-    "📤 Drag and drop file di sini", 
-    type=["jpg","jpeg","png"], 
-    accept_multiple_files=True, 
-    key=f"uploader_{st.session_state.upload_key}"
-)
-
-# ==========================
-# Fungsi loading
-# ==========================
-def loading_animation(task_name="Memproses"):
-    with st.spinner(f"{task_name}... Mohon tunggu! ⏳"):
-        time.sleep(1.5)
-
-# Ukuran gambar
-MAX_PREVIEW = 250
-RESULT_WIDTH = 800
-RESULT_HEIGHT = 600
-
-# ==========================
-# Proses upload & prediksi
-# ==========================
 if uploaded_files:
-    files_to_process = uploaded_files[:2]  # maksimal 2 gambar
+    st.write(f"🖼️ Total gambar diunggah: **{len(uploaded_files)} file**")
 
-    st.session_state.preview_imgs = []
-    st.session_state.result_imgs = []
-    st.session_state.result_labels = []
-
-    for uploaded_file in files_to_process:
+    for uploaded_file in uploaded_files:
         img = Image.open(uploaded_file).convert("RGB")
+        st.image(img, caption=f"✨ {uploaded_file.name}", use_container_width=True)
 
-        # Preview kecil
-        preview_img = img.copy()
-        preview_img.thumbnail((MAX_PREVIEW, MAX_PREVIEW))
-        st.session_state.preview_imgs.append(preview_img)
+        # ==========================
+        # MODE DETEKSI OBJEK
+        # ==========================
+        if menu == "Deteksi Objek (YOLO)":
+            with st.spinner(f"🔍 Mendeteksi objek pada {uploaded_file.name}..."):
+                results = yolo_model.predict(img, conf=0.6, verbose=False)  # threshold tinggi biar gak asal deteksi
+                boxes = results[0].boxes
 
-        # Proses prediksi
-        if menu == "Deteksi Sendok & Garpu (YOLO)":
-            loading_animation("Mendeteksi objek")
-            results = yolo_model(img)
-            result_img = results[0].plot()
-            result_display = Image.fromarray(result_img)
-            result_display = result_display.resize((RESULT_WIDTH, RESULT_HEIGHT))
-            st.session_state.result_imgs.append(result_display)
+                if boxes is not None and len(boxes) > 0:
+                    st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
+                    st.success("✅ Objek terdeteksi dengan baik!")
+                else:
+                    st.warning("🚫 Tidak ada Spongebob atau Patrick yang terdeteksi.")
+                    st.info("💡 Gambar ini sepertinya bukan domain deteksi objek (misal gambar indoor/outdoor).")
 
-            labels = []
-            for box in results[0].boxes:
-                cls = int(box.cls)
-                label = yolo_model.names[cls] if hasattr(yolo_model,'names') else f"Kelas {cls}"
-                conf = float(box.conf)  # Pastikan float agar tidak error
-                labels.append(f"{label} (Conf: {conf:.2f})")
+        # ==========================
+        # MODE KLASIFIKASI GAMBAR
+        # ==========================
+        elif menu == "Klasifikasi Gambar":
+            with st.spinner(f"🧠 Mengklasifikasi {uploaded_file.name}..."):
+                img_resized = img.resize((128, 128))
+                img_array = image.img_to_array(img_resized)
+                img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-            if not labels:
-                labels.append("Tidak ada objek terdeteksi")
-            st.session_state.result_labels.append(labels)
+                prediction = classifier.predict(img_array)
+                class_index = np.argmax(prediction)
+                confidence = np.max(prediction)
 
-        elif menu == "Klasifikasi Retakan (CNN)":
-            loading_animation("Memprediksi gambar")
-            target_size = classifier.input_shape[1:3]
-            img_resized = img.resize(target_size)
-            img_array = image.img_to_array(img_resized)
-            img_array = np.expand_dims(img_array, axis=0)/255.0
-            prediction = float(classifier.predict(img_array)[0][0])  # Convert ke float
-            predicted_label = "Retakan" if prediction>=0.5 else "Bukan Retakan"
-            confidence = prediction if prediction>=0.5 else 1 - prediction
+                labels = ["Indoor", "Outdoor"]  # sesuaikan dengan modelmu
+                predicted_label = labels[class_index]
 
-            display_resized = img_resized.copy()
-            display_resized = display_resized.resize((RESULT_WIDTH, RESULT_HEIGHT))
-            st.session_state.result_imgs.append(display_resized)
-
-            st.session_state.result_labels.append([f"{predicted_label} ({confidence*100:.2f}%)"])
-
-# ==========================
-# Tampilkan Preview berdampingan
-# ==========================
-if st.session_state.preview_imgs:
-    st.subheader("Preview Gambar Upload")
-    cols_preview = st.columns(len(st.session_state.preview_imgs))
-    for i, col in enumerate(cols_preview):
-        col.image(st.session_state.preview_imgs[i], caption=f"Gambar {i+1}", use_container_width=False)
+                if confidence >= 0.7:
+                    st.write(f"🎯 **Hasil Prediksi:** {predicted_label} ({confidence:.2f})")
+                    st.progress(float(confidence))
+                    if confidence > 0.85:
+                        st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
+                    elif confidence > 0.6:
+                        st.warning("🌤️ Model agak ragu, tapi masih cukup yakin.")
+                else:
+                    st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
+                    st.markdown("💡 **Saran:** Gunakan gambar lingkungan dalam/luar ruangan yang jelas 📷")
 
 # ==========================
-# Tampilkan Hasil berdampingan & kata-kata kreatif di bawah
+# FOOTER
 # ==========================
-if st.session_state.result_imgs:
-    st.divider()
-    st.subheader("Hasil Prediksi / Deteksi")
-    cols_result = st.columns(len(st.session_state.result_imgs))
-    for i, col in enumerate(cols_result):
-        col.image(st.session_state.result_imgs[i], caption=f"Hasil Gambar {i+1}", use_container_width=False)
-        
-        # Tampilkan label
-        for label_text in st.session_state.result_labels[i]:
-            col.markdown(f"{label_text}")
-        
-        # 🎨 Kata-kata kreatif muncul *di bawah gambar hasil*
-        if menu == "Deteksi Sendok & Garpu (YOLO)":
-            for box_text in st.session_state.result_labels[i]:
-                if "sendok" in box_text.lower():
-                    col.markdown("🥄 Wah, ada sendok elegan di sini! Siap menyendok makanan lezat 🍜")
-                elif "garpu" in box_text.lower():
-                    col.markdown("🍴 Terlihat garpu tajam nan gagah siap menemani sendoknya ✨")
-        elif menu == "Klasifikasi Retakan (CNN)":
-            label_text_full = st.session_state.result_labels[i][0]
-            if "retakan" in label_text_full.lower() and "bukan" not in label_text_full.lower():
-                col.markdown("🧱 Terlihat ada retakan! Mungkin waktunya perbaikan 💥")
-            else:
-                col.markdown("✅ Permukaannya halus dan kuat, tidak ada retakan berarti 💪")
+st.markdown("---")
+st.markdown("<center>Made with 💕 by <b>Emmy Nora</b> 🌸</center>", unsafe_allow_html=True)
 
-# ==========================
-# Pesan jika belum upload
-# ==========================
-if not uploaded_files:
-    st.info("📸 Silakan unggah gambar di sidebar untuk memulai analisis.")
+
+syntax ini udah pas cuma dibagian klasifikasi gambar kenapa pas aku masukin gambar spongebob masuk ke klasifikasiin outdoor/indoor harusnya kan ga ada 
