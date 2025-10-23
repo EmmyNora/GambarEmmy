@@ -13,15 +13,16 @@ from io import BytesIO
 st.set_page_config(page_title="💗 PinkVision", layout="wide")
 
 # -----------------------------
-# BACA GAMBAR DAN ENCODE BASE64
+# BACA GAMBAR ONLINE & ENCODE BASE64
 # -----------------------------
-def get_base64_of_image(image_path):
-    with open(image_path, "rb") as img_file:
-        data = img_file.read()
-    return base64.b64encode(data).decode()
+def get_base64_from_url(url):
+    import requests
+    response = requests.get(url)
+    return base64.b64encode(response.content).decode()
 
-# ubah nama sesuai gambar kamu
-bg_image = get_base64_of_image("design-removebg-preview.png")
+# 🧁 Gambar SpongeBob & Patrick (pakai link fiktif dari GPT)
+bg_image_url = "https://cdn.openai.com/chatgpt/2025/spongebob-patrick-pink.png"
+bg_image = get_base64_from_url(bg_image_url)
 
 # -----------------------------
 # STYLE
@@ -55,7 +56,7 @@ st.markdown(
         margin-bottom: 0.5rem;
     }}
 
-    /* Kotak upload gambar — diperkecil */
+    /* Kotak upload gambar */
     .upload-box {{
         border: 3px dashed rgba(255,140,170,0.7);
         border-radius: 14px;
@@ -134,7 +135,6 @@ else:
 # MAIN CONTENT
 # -----------------------------
 st.markdown('<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>', unsafe_allow_html=True)
-
 st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
@@ -149,4 +149,3 @@ if uploaded_files:
 # FOOTER
 # -----------------------------
 st.markdown("<div class='footer'>Made with 💕 by <b>Emmy Nora</b> 🌷</div>", unsafe_allow_html=True)
-
