@@ -24,45 +24,44 @@ def image_to_data_uri(img_bytes: bytes, mime_type: str = "image/png") -> str:
 # UI: Background selection (optional)
 # -----------------------------
 st.sidebar.markdown("## 🎨 Background (opsional)")
-bg_file = st.sidebar.file_uploader("Upload background image (.png/.jpg) — kalau tidak, akan pakai default", type=["png","jpg","jpeg"])
+bg_file = st.sidebar.file_uploader(
+    "Upload background image (.png/.jpg) — kalau tidak, akan pakai default",
+    type=["png", "jpg", "jpeg"]
+)
 
-# Default image (mirip gambar kedua pastel SpongeBob/Patrick).
-# Jika kamu punya URL lain yang pasti, ganti string ini.
+# Default image (SpongeBob & Patrick)
 DEFAULT_BG_URL = "https://i.pinimg.com/736x/a1/aa/58/a1aa5870adbb34ef6e20b9e9d6c8deb6.jpg"
 
 # Prepare background source: either uploaded file -> data URI, or remote URL
 if bg_file:
     raw = bg_file.read()
-    # detect mime
     mime = "image/png" if bg_file.type == "image/png" else "image/jpeg"
     bg_data_uri = image_to_data_uri(raw, mime)
     bg_source = bg_data_uri
 else:
-    # use remote URL directly
     bg_source = DEFAULT_BG_URL
 
 # -----------------------------
-# STYLE: Gradient overlay + background image
+# STYLE: Gradient overlay + SpongeBob kecil di kanan bawah
 # -----------------------------
-# We use multiple backgrounds: first the gradient (on top), then the image.
-# We also make sidebar and content semi-transparent so the wallpaper shows through.
 st.markdown(
     f"""
     <style>
-    /* Make whole app use the illustrated background with soft pink gradient overlay */
+    /* 🌸 Background utama dengan SpongeBob kecil di kanan bawah */
     .stApp {{
+        background-color: #ffe6f0;
         background-image:
             linear-gradient(180deg, rgba(255,223,230,0.88), rgba(255,185,200,0.60)),
             url("{bg_source}");
-        background-size: cover;
-        background-position: center;
+        background-size: 300px auto;       /* kecilin SpongeBob */
+        background-position: right 30px bottom 30px;  /* pojok kanan bawah */
         background-repeat: no-repeat;
         background-attachment: fixed;
         font-family: 'Poppins', sans-serif;
         overflow-x: hidden;
     }}
 
-    /* Sidebar styling (semi-transparent so wallpaper is visible) */
+    /* Sidebar styling */
     [data-testid="stSidebar"] {{
         background: linear-gradient(180deg, rgba(255,236,242,0.85), rgba(255,220,235,0.75));
         color: #4a0032;
@@ -71,7 +70,7 @@ st.markdown(
         padding-top: 1rem;
     }}
 
-    /* Ensure main content (cards, upload area) appear above background and remain readable */
+    /* Judul utama */
     .main-title {{
         text-align: center;
         font-size: 2.4rem;
@@ -81,6 +80,7 @@ st.markdown(
         margin-top: 1.8rem;
     }}
 
+    /* Box upload gambar */
     .upload-box {{
         border: 3px dashed rgba(255,140,170,0.7);
         border-radius: 16px;
@@ -91,13 +91,11 @@ st.markdown(
         box-shadow: 0 6px 28px rgba(255,150,180,0.12);
     }}
 
-    /* Make sure internal Streamlit containers have a higher stacking context */
     .block-container {{
         position: relative;
         z-index: 10;
     }}
 
-    /* Small adaptive tweaks for mobile */
     @media (max-width: 600px) {{
         .main-title {{ font-size: 1.6rem; }}
         .upload-box {{ padding: 20px; }}
@@ -110,7 +108,10 @@ st.markdown(
 # -----------------------------
 # PAGE CONTENT
 # -----------------------------
-st.sidebar.markdown('<div style="font-weight:800; color:#b3005a; font-size:18px;">🌸 Pilih Mode</div>', unsafe_allow_html=True)
+st.sidebar.markdown(
+    '<div style="font-weight:800; color:#b3005a; font-size:18px;">🌸 Pilih Mode</div>',
+    unsafe_allow_html=True
+)
 mode = st.sidebar.radio("", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
 if mode == "Deteksi Objek (YOLO)":
@@ -128,9 +129,16 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>',
+    unsafe_allow_html=True
+)
 
-st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>',
+    unsafe_allow_html=True
+)
+
 uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if uploaded_files:
