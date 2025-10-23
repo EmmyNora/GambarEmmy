@@ -106,7 +106,7 @@ if uploaded_files:
         # ==========================
         if menu == "Deteksi Objek (YOLO)":
             with st.spinner(f"🔍 Mendeteksi objek pada {uploaded_file.name}..."):
-                results = yolo_model.predict(img, conf=0.7, verbose=False)  # threshold tinggi biar gak asal deteksi
+                results = yolo_model.predict(img, conf=0.6, verbose=False)  # threshold tinggi biar gak asal deteksi
                 boxes = results[0].boxes
 
                 if boxes is not None and len(boxes) > 0:
