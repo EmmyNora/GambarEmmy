@@ -9,7 +9,6 @@ import time
 # ======== STYLE ========
 st.markdown("""
 <style>
-/* Background 3D gradiasi */
 .stApp {
     background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
@@ -25,7 +24,6 @@ st.markdown("""
     padding-top: 1rem;
 }
 
-/* Sidebar content */
 .sidebar-title {
     font-size: 1.4rem;
     font-weight: 700;
@@ -53,7 +51,7 @@ st.markdown("""
     margin-top: 2rem;
 }
 
-/* Cute upload box */
+/* Upload box */
 .upload-box {
     border: 3px dashed #ff8fab;
     border-radius: 15px;
@@ -64,41 +62,46 @@ st.markdown("""
     box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
 }
 
-/* ========== Animasi 3D (awan, bunga, ubur-ubur) ========== */
+/* ========== Animasi Mengambang ========== */
 @keyframes floaty {
     0% {transform: translateY(0px);}
     50% {transform: translateY(-15px);}
     100% {transform: translateY(0px);}
 }
 
-.cloud, .flower, .jelly {
+.bg-item {
     position: absolute;
-    opacity: 0.8;
+    opacity: 0.85;
+    z-index: -1;
     animation: floaty 6s ease-in-out infinite;
 }
 
-/* Awan */
-.cloud {
-    width: 100px;
-    top: 120px;
-    left: 50%;
-    transform: translateX(-50%);
+/* SpongeBob & Patrick (ikon kartun lucu) */
+.spongebob {
+    width: 120px;
+    bottom: 40px;
+    left: 10%;
+    animation-delay: 0s;
 }
-
-/* Bunga Patrick */
-.flower {
-    width: 90px;
-    top: 70px;
-    left: 25%;
-    animation-delay: 1s;
-}
-
-/* Ubur-ubur */
-.jelly {
+.patrick {
     width: 100px;
     bottom: 40px;
-    right: 5%;
+    right: 10%;
+    animation-delay: 1.5s;
+}
+
+/* Indoor plant & outdoor sun */
+.plant {
+    width: 90px;
+    top: 80px;
+    left: 20%;
     animation-delay: 2s;
+}
+.sun {
+    width: 100px;
+    top: 40px;
+    right: 15%;
+    animation-delay: 3s;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -127,13 +130,15 @@ else:
 # ======== MAIN LAYOUT ========
 st.markdown('<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>', unsafe_allow_html=True)
 
-# Gambar animasi 3D (URL bisa kamu ganti dengan file lokal kalau mau)
-st.markdown("""
-<img src="https://i.ibb.co/5YxN9dP/cloud.png" class="cloud">
-<img src="https://i.ibb.co/92CfksB/flower.png" class="flower">
-<img src="https://i.ibb.co/JxkYk4Z/jelly.png" class="jelly">
+# ======== Animasi Background ========
+st.markdown(f"""
+<img src="data:image/png;base64,{open('/mnt/data/1cf0c3f3-4b91-4755-97f5-1df7bc2f3a60.png','rb').read().encode('base64').decode()}" class="bg-item spongebob">
+<img src="https://i.ibb.co/6bMmyxF/patrick.png" class="bg-item patrick">
+<img src="https://i.ibb.co/WyNYn4k/plant.png" class="bg-item plant">
+<img src="https://i.ibb.co/mT0kZwh/sun.png" class="bg-item sun">
 """, unsafe_allow_html=True)
 
+# ======== Upload Area ========
 st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
