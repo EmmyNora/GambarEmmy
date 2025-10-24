@@ -15,41 +15,16 @@ st.set_page_config(
 )
 
 # ==========================
-# STYLE + ANIMASI HATI
+# STYLE GLOWING & FONT UNIK
 # ==========================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Poppins:wght@400;600;800&display=swap');
 
-/* Background gradien */
 .stApp {
     background: linear-gradient(to bottom right, #ffd6e0, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
-    overflow: hidden;
-    position: relative;
 }
-
-/* ======================= */
-/* ANIMASI HATI TERBANG 💖 */
-/* ======================= */
-@keyframes floatUp {
-  0% { transform: translateY(100vh) scale(0.4); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
-}
-.heart {
-  position: absolute;
-  bottom: -10vh;
-  font-size: 20px;
-  color: #ff66b2;
-  opacity: 0.7;
-  animation: floatUp 10s ease-in infinite;
-}
-.heart:nth-child(1) { left: 10%; animation-delay: 0s; font-size: 18px; }
-.heart:nth-child(2) { left: 25%; animation-delay: 2s; font-size: 22px; color: #ff99cc; }
-.heart:nth-child(3) { left: 40%; animation-delay: 4s; font-size: 17px; color: #ff66b3; }
-.heart:nth-child(4) { left: 60%; animation-delay: 6s; font-size: 24px; color: #ff7eb9; }
-.heart:nth-child(5) { left: 80%; animation-delay: 8s; font-size: 19px; color: #ff8fbf; }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
@@ -139,13 +114,6 @@ div.stButton > button:first-child:hover {
     padding-bottom: 1rem;
 }
 </style>
-
-<!-- Elemen hati 💕 -->
-<div class="heart">💖</div>
-<div class="heart">💗</div>
-<div class="heart">💞</div>
-<div class="heart">💘</div>
-<div class="heart">💝</div>
 """, unsafe_allow_html=True)
 
 # ==========================
@@ -203,7 +171,7 @@ if uploaded_files:
     st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
 
     if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
-        # Jika hanya 1 gambar
+        # ==================== 1 GAMBAR ====================
         if len(uploaded_files) == 1:
             for file in uploaded_files:
                 img = Image.open(file).convert("RGB")
@@ -222,6 +190,7 @@ if uploaded_files:
                             st.warning("🚫 Tidak ada objek yang terdeteksi.")
                             st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
                         st.markdown('</div>', unsafe_allow_html=True)
+
                 else:
                     with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
                         img_resized = img.resize((128, 128))
@@ -245,7 +214,8 @@ if uploaded_files:
                             st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
                             st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
                         st.markdown('</div>', unsafe_allow_html=True)
-        # Jika banyak gambar
+
+        # ==================== BEBERAPA GAMBAR ====================
         else:
             cols = st.columns(2)
             for i, file in enumerate(uploaded_files):
@@ -258,6 +228,7 @@ if uploaded_files:
                         with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
                             results = yolo_model.predict(img, conf=0.6, verbose=False)
                             boxes = results[0].boxes
+
                             st.markdown('<div class="result-card">', unsafe_allow_html=True)
                             if boxes is not None and len(boxes) > 0:
                                 st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
@@ -271,6 +242,7 @@ if uploaded_files:
                             img_resized = img.resize((128, 128))
                             img_array = image.img_to_array(img_resized)
                             img_array = np.expand_dims(img_array, axis=0) / 255.0
+
                             prediction = classifier.predict(img_array)
                             class_index = np.argmax(prediction)
                             confidence = np.max(prediction)
