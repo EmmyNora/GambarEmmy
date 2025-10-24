@@ -51,7 +51,7 @@ st.markdown("""
     margin-bottom: 3rem;
 }
 
-/* Uploader box custom */
+/* File uploader */
 [data-testid="stFileUploader"] {
     border: 2px dashed #ff8fab;
     background-color: rgba(255, 240, 245, 0.7);
@@ -68,10 +68,14 @@ st.markdown("""
     background-color: rgba(255, 245, 250, 0.9);
 }
 
-/* Text uploader */
-[data-testid="stFileUploader"] section div {
-    color: #b3005a !important;
-    font-weight: 500 !important;
+/* Card hasil */
+.result-card {
+    background: rgba(255, 240, 245, 0.85);
+    border-radius: 15px;
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 15px rgba(255, 100, 150, 0.3);
+    border: 1px solid #ff9ec4;
 }
 
 /* Footer */
@@ -103,33 +107,25 @@ with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
 st.sidebar.title("🌸 Pilih Mode")
 mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
-# Deskripsi dinamis di sidebar
-if mode == "Deteksi Objek (YOLO)":
-    st.sidebar.markdown("""
-    ---
-    ### 🎯 Tentang Mode Ini:
-    Mode **Deteksi Objek (YOLO)** akan mencari dan mengenali objek yang ada di dalam gambar kamu 🧠✨  
-    - Model: `YOLOv8`  
-    - Gunakan gambar bertema **Spongebob vs Patrick** untuk hasil paling seru!  
-    - Hasil: bounding box dan label objek yang terdeteksi 💕
-    """)
-else:
-    st.sidebar.markdown("""
-    ---
-    ### 🧠 Tentang Mode Ini:
-    Mode **Klasifikasi Gambar** digunakan untuk mengenali apakah gambar kamu bertema  
-    **Indoor** atau **Outdoor** 🌇🌿  
-    - Model: CNN berbasis `TensorFlow`  
-    - Gunakan gambar ruangan atau pemandangan luar untuk uji coba!  
-    - Hasil: label + tingkat keyakinan model 🎀
-    """)
-
 st.sidebar.markdown("""
----
-💡 *Tips:*  
-Kamu bisa upload lebih dari satu gambar sekaligus ya!  
-Setelah itu klik tombol 💖 untuk memulai prediksi.
-""")
+<div style='background-color:#ffe6ee; border-radius:12px; padding:15px; border:1px solid #ffb6c1; margin-top:1rem;'>
+<b>🔍 Model YOLO (.pt)</b><br>
+Mendeteksi karakter:<br>
+• 🟡 <b>Spongebob</b><br>
+• 💗 <b>Patrick</b>
+</div>
+
+<div style='background-color:#ffe6ee; border-radius:12px; padding:15px; border:1px solid #ffb6c1; margin-top:1rem;'>
+<b>🧠 Model Klasifikasi (.h5)</b><br>
+Mengenali jenis gambar:<br>
+• 🏠 <b>Indoor</b> — di dalam ruangan<br>
+• 🌳 <b>Outdoor</b> — di luar ruangan
+</div>
+
+<div style='background-color:#ffe6ee; border-radius:12px; padding:10px; border:1px dashed #ff9ec4; margin-top:1rem; font-size:0.9rem;'>
+💡 <i>Tips:</i> kamu bisa upload <b>beberapa gambar sekaligus</b> untuk deteksi & klasifikasi seru 💕
+</div>
+""", unsafe_allow_html=True)
 
 # ==========================
 # MAIN CONTENT
@@ -143,9 +139,9 @@ uploaded_files = st.file_uploader(
     accept_multiple_files=True
 )
 
-# Tombol prediksi
 if uploaded_files:
     st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
+    
     if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
         for file in uploaded_files:
             img = Image.open(file).convert("RGB")
@@ -155,12 +151,17 @@ if uploaded_files:
                 with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
                     results = yolo_model.predict(img, conf=0.6, verbose=False)
                     boxes = results[0].boxes
-                    if boxes is not None and len(boxes) > 0:
-                        st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
-                        st.success("✅ Objek berhasil terdeteksi!")
-                    else:
-                        st.warning("🚫 Tidak ada objek yang terdeteksi.")
-                        st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
+
+                    with st.container():
+                        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+                        if boxes is not None and len(boxes) > 0:
+                            st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
+                            st.success("✅ Objek berhasil terdeteksi!")
+                        else:
+                            st.warning("🚫 Tidak ada objek yang terdeteksi.")
+                            st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
+                        st.markdown('</div>', unsafe_allow_html=True)
+
             else:
                 with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
                     img_resized = img.resize((128, 128))
@@ -174,16 +175,18 @@ if uploaded_files:
                     labels = ["Indoor", "Outdoor"]
                     predicted_label = labels[class_index]
 
-                    if confidence >= 0.7:
+                    with st.container():
+                        st.markdown('<div class="result-card">', unsafe_allow_html=True)
                         st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
                         st.progress(float(confidence))
                         if confidence > 0.85:
                             st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
                         elif confidence > 0.6:
                             st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
-                    else:
-                        st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
-                        st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
+                        else:
+                            st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
+                            st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
+                        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================
 # FOOTER
