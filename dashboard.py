@@ -1,4 +1,3 @@
-bisa tambahin bayangan dibagian, judul, sama pilih mode dan listnya. ini syntaxnya ya:
 import streamlit as st
 from ultralytics import YOLO
 import tensorflow as tf
