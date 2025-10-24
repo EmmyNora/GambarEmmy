@@ -9,13 +9,13 @@ from PIL import Image
 # KONFIGURASI HALAMAN
 # ==========================
 st.set_page_config(
-    page_title="💗 PinkVision: Klasifikasi & Deteksi Object 💗",
+    page_title="💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗",
     page_icon="🌸",
     layout="wide"
 )
 
 # ==========================
-# STYLE
+# STYLE 
 # ==========================
 st.markdown("""
 <style>
@@ -23,7 +23,6 @@ st.markdown("""
 .stApp {
     background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
-    overflow: hidden;
 }
 
 /* Sidebar */
@@ -54,41 +53,34 @@ st.markdown("""
     box-shadow: inset 0 0 10px rgba(255, 150, 180, 0.4);
 }
 
-/* Tombol */
-div.stButton > button {
-    background: linear-gradient(135deg, #ff9ec4, #ffb6c1);
-    color: white;
-    font-weight: 600;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 25px;
-    box-shadow: 0px 4px 10px rgba(255, 100, 150, 0.3);
-    transition: 0.3s;
-}
-div.stButton > button:hover {
-    background: linear-gradient(135deg, #ffb6c1, #ff8fab);
-    box-shadow: 0px 6px 15px rgba(255, 100, 150, 0.5);
-    transform: scale(1.05);
-}
-
-/* Judul utama */
+/* Main title */
 .main-title {
     text-align: center;
     font-size: 2.3rem;
     color: #b3005a;
     font-weight: 800;
     text-shadow: 2px 2px 6px #ffbad5;
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
-/* Upload box */
+/* Slogan */
+.slogan {
+    text-align: center;
+    font-style: italic;
+    color: #b3005a;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Upload area */
 .upload-box {
     border: 3px dashed #ff8fab;
     border-radius: 15px;
-    padding: 30px;
+    padding: 20px;
     text-align: center;
     background-color: rgba(255, 255, 255, 0.5);
-    margin-top: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
 }
 
@@ -97,7 +89,7 @@ div.stButton > button:hover {
     text-align: center;
     color: #b3005a;
     font-weight: 500;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -113,7 +105,6 @@ def load_models():
 
 with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
     yolo_model, classifier = load_models()
-st.success("✨ Model berhasil dimuat dengan sempurna! 🌸")
 
 # ==========================
 # SIDEBAR
@@ -124,61 +115,40 @@ mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gam
 if mode == "Deteksi Objek (YOLO)":
     st.sidebar.markdown("""
     <div class="desc-box">
-        <p style="margin-bottom:4px;">
-        🔍 <i>Model YOLO (.pt)</i><br>
-        mendeteksi karakter:
-        </p>
-        <ul style="margin-top:0; padding-left:20px; list-style-type:none;">
-            <li>🟡 Spongebob</li>
-            <li>💗 Patrick</li>
-        </ul>
+    🔍 <b>Model YOLO (.pt)</b><br>
+    mendeteksi karakter:<br>
+    • 🟡 <b>Spongebob</b><br>
+    • 💗 <b>Patrick</b>
     </div>
     """, unsafe_allow_html=True)
 else:
     st.sidebar.markdown("""
     <div class="desc-box">
-        <p style="margin-bottom:4px;">
-        🧠 <i>Model Keras (.h5)</i><br>
-        mengklasifikasikan gambar:
-        </p>
-        <ul style="margin-top:0; padding-left:20px; list-style-type:none;">
-            <li>🪴 Indoor</li>
-            <li>🌤️ Outdoor</li>
-        </ul>
+    🧠 <b>Model Keras (.h5)</b><br>
+    mengklasifikasikan gambar:<br>
+    • 🪴 <b>Indoor</b><br>
+    • 🌤️ <b>Outdoor</b>
     </div>
     """, unsafe_allow_html=True)
 
 # ==========================
-# MAIN HEADER
+# MAIN CONTENT
 # ==========================
-st.markdown('<div class="main-title">💗 PinkVision: Cute Image & Object Detector 💗</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗</div>', unsafe_allow_html=True)
+st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
 st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
 
-# ==========================
-# UPLOAD & PROSES GAMBAR
-# ==========================
 uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
+# Tombol prediksi
 if uploaded_files:
     st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
-
-    # Tombol prediksi/klasifikasi
-    if mode == "Deteksi Objek (YOLO)":
-        predict_button = st.button("🔍 Deteksi Sekarang")
-    else:
-        predict_button = st.button("🧠 Klasifikasikan Sekarang")
-
-    # Tampilkan preview gambar dulu
-    for file in uploaded_files:
-        img = Image.open(file).convert("RGB")
-        st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
-
-    # Jalankan prediksi saat tombol diklik
-    if predict_button:
+    if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
         for file in uploaded_files:
             img = Image.open(file).convert("RGB")
+            st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
 
-            # === MODE DETEKSI YOLO ===
+            # === MODE 1: DETEKSI OBJEK ===
             if mode == "Deteksi Objek (YOLO)":
                 with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
                     results = yolo_model.predict(img, conf=0.6, verbose=False)
@@ -191,7 +161,7 @@ if uploaded_files:
                         st.warning("🚫 Tidak ada objek yang terdeteksi.")
                         st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
 
-            # === MODE KLASIFIKASI GAMBAR ===
+            # === MODE 2: KLASIFIKASI GAMBAR ===
             elif mode == "Klasifikasi Gambar":
                 with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
                     img_resized = img.resize((128, 128))
@@ -220,4 +190,4 @@ if uploaded_files:
 # FOOTER
 # ==========================
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<p class='footer'>Made with 💕 by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
+st.markdown("<p class='footer'>Made 💕 by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
