@@ -1,3 +1,7 @@
+# ==========================
+# 🌸 PINKLENS : DETEKSI OBJEK & KLASIFIKASI GAMBAR
+# ==========================
+
 import streamlit as st
 from ultralytics import YOLO
 import tensorflow as tf
@@ -5,189 +9,150 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 
-# ==========================
-# KONFIGURASI HALAMAN
-# ==========================
-st.set_page_config(
-    page_title="💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗",
-    page_icon="🌸",
-    layout="wide"
-)
 
 # ==========================
-# STYLE 
+# 🌸 STYLE CSS
 # ==========================
 st.markdown("""
 <style>
-/* Background gradiasi 3D */
+/* Background gradien pink 3D */
 .stApp {
-    background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
+    background: linear-gradient(to bottom right, #ffdce5, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
+    color: #5a004e;
 }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background: linear-gradient(to bottom, #ffe3eb, #ffc6d5, #ff9ec4);
-    color: #4a0032;
-    border-right: 3px solid #ff82a9;
-    box-shadow: 4px 0 15px rgba(255, 100, 150, 0.3);
-    padding-top: 1rem;
+    background: linear-gradient(to bottom, #ffe6f2, #ffb6c1, #ff9ec4);
+    color: #5a004e;
+}
+[data-testid="stSidebar"] * {
+    color: #5a004e !important;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Sidebar title */
-.sidebar-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #b3005a;
-    text-shadow: 1px 1px 3px #ffc0cb;
-    margin-bottom: 1rem;
-}
-
-/* Deskripsi box */
-.desc-box {
-    background-color: rgba(255, 240, 245, 0.7);
-    border: 2px solid #ff8fab;
-    border-radius: 12px;
-    padding: 10px;
-    margin-top: 10px;
-    box-shadow: inset 0 0 10px rgba(255, 150, 180, 0.4);
-}
-
-/* Main title */
-.main-title {
+/* Judul utama */
+.title {
     text-align: center;
-    font-size: 2.3rem;
-    color: #b3005a;
+    font-size: 48px;
     font-weight: 800;
-    text-shadow: 2px 2px 6px #ffbad5;
-    margin-top: 1rem;
+    color: #ff3f8e;
+    text-shadow: 2px 2px 10px rgba(255, 105, 180, 0.4);
+    margin-top: 20px;
 }
 
 /* Slogan */
 .slogan {
     text-align: center;
+    font-size: 20px;
+    color: #b3006b;
     font-style: italic;
-    color: #b3005a;
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 60px; /* jarak antara slogan dan upload box */
 }
 
-/* Upload area */
-.upload-box {
-    border: 3px dashed #ff8fab;
-    border-radius: 15px;
-    padding: 20px;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.5);
-    margin-top: 10px;
-    margin-bottom: 10px;
-    box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
+/* Kotak upload */
+.upload-section {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0px 4px 15px rgba(255, 105, 180, 0.3);
 }
 
-/* Footer */
-.footer {
-    text-align: center;
-    color: #b3005a;
-    font-weight: 500;
-    margin-top: 1.5rem;
+/* Tombol */
+button, .stButton>button {
+    background-color: #ff7eb9;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 24px;
+    box-shadow: 0px 4px 10px rgba(255, 105, 180, 0.3);
+    transition: 0.2s;
+}
+button:hover, .stButton>button:hover {
+    background-color: #ff479c;
+    transform: scale(1.05);
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ==========================
-# LOAD MODEL
-# ==========================
-@st.cache_resource
-def load_models():
-    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")
-    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")
-    return yolo_model, classifier
-
-with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
-    yolo_model, classifier = load_models()
 
 # ==========================
-# SIDEBAR
+# 🌸 SIDEBAR
 # ==========================
-st.sidebar.markdown('<div class="sidebar-title">🌸 Pilih Mode</div>', unsafe_allow_html=True)
-mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+st.sidebar.title("🩷 Tentang PinkLens")
+st.sidebar.markdown("""
+**🔍 Model YOLO (.pt)**  
+mendeteksi karakter:
 
-if mode == "Deteksi Objek (YOLO)":
-    st.sidebar.markdown("""
-    <div class="desc-box">
-    🔍 <b>Model YOLO (.pt)</b><br>
-    mendeteksi karakter:<br>
-    • 🟡 <b>Spongebob</b><br>
-    • 💗 <b>Patrick</b>
-    </div>
-    """, unsafe_allow_html=True)
-else:
-    st.sidebar.markdown("""
-    <div class="desc-box">
-    🧠 <b>Model Keras (.h5)</b><br>
-    mengklasifikasikan gambar:<br>
-    • 🪴 <b>Indoor</b><br>
-    • 🌤️ <b>Outdoor</b>
-    </div>
-    """, unsafe_allow_html=True)
+- 🟡 **Spongebob**  
+- 💗 **Patrick**
+
+---
+
+Pilih mode yang ingin dijalankan:
+""")
+
+mode = st.sidebar.radio("🎯 Pilih Mode", ["Deteksi Objek", "Klasifikasi Gambar"])
+st.sidebar.markdown("---")
+st.sidebar.markdown("✨ *See Differently, See in Pink* ✨")
+
 
 # ==========================
-# MAIN CONTENT
+# 🌸 HEADER UTAMA
 # ==========================
-st.markdown('<div class="main-title">💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗</div>', unsafe_allow_html=True)
-st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
-st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
+st.markdown("<h1 class='title'>📷 PinkLens : Deteksi Objek & Klasifikasi Gambar</h1>", unsafe_allow_html=True)
+st.markdown("<p class='slogan'>🌸 PinkLens: See Differently, See in Pink 🌸</p>", unsafe_allow_html=True)
 
-uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
-# Tombol prediksi
+# ==========================
+# 📸 UPLOAD GAMBAR
+# ==========================
+st.markdown("<div class='upload-section'>", unsafe_allow_html=True)
+
+uploaded_files = st.file_uploader(
+    "📸 Seret dan lepas (drag & drop) beberapa gambar di sini:",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True
+)
+
 if uploaded_files:
-    st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
-    if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
-        for file in uploaded_files:
-            img = Image.open(file).convert("RGB")
-            st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
+    st.write(f"🖼 Total gambar diunggah: *{len(uploaded_files)} file*")
 
-            # === MODE 1: DETEKSI OBJEK ===
-            if mode == "Deteksi Objek (YOLO)":
-                with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
-                    results = yolo_model.predict(img, conf=0.6, verbose=False)
-                    boxes = results[0].boxes
+    for uploaded_file in uploaded_files:
+        img = Image.open(uploaded_file).convert("RGB")
+        st.image(img, caption=f"✨ {uploaded_file.name}", use_container_width=True)
 
-                    if boxes is not None and len(boxes) > 0:
-                        st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
-                        st.success("✅ Objek berhasil terdeteksi!")
-                    else:
-                        st.warning("🚫 Tidak ada objek yang terdeteksi.")
-                        st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
+    # ==========================
+    # 🔮 TOMBOL PREDIKSI / DETEKSI
+    # ==========================
+    if st.button("🔍 Jalankan Prediksi"):
+        st.write("🚀 Proses sedang berjalan...")
 
-            # === MODE 2: KLASIFIKASI GAMBAR ===
+        for uploaded_file in uploaded_files:
+            img = Image.open(uploaded_file).convert("RGB")
+
+            if mode == "Deteksi Objek":
+                # Contoh placeholder YOLO
+                st.write(f"📦 Deteksi objek pada gambar **{uploaded_file.name}**:")
+                st.success("✅ Ditemukan: Spongebob dan Patrick (contoh hasil)")
+                # Model aslinya bisa ditambahkan begini:
+                # model = YOLO("model_yolo.pt")
+                # results = model(img)
+                # st.image(results[0].plot(), caption="Hasil Deteksi", use_container_width=True)
+
             elif mode == "Klasifikasi Gambar":
-                with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
-                    img_resized = img.resize((128, 128))
-                    img_array = image.img_to_array(img_resized)
-                    img_array = np.expand_dims(img_array, axis=0) / 255.0
+                # Placeholder klasifikasi (contoh)
+                st.write(f"🧠 Mengklasifikasikan gambar **{uploaded_file.name}**:")
+                st.info("📊 Hasil: Gambar termasuk kategori 'Outdoor Scene' (contoh hasil)")
+                # Contoh alur sebenarnya:
+                # model = tf.keras.models.load_model("model_klasifikasi.h5")
+                # img_resized = img.resize((224, 224))
+                # x = image.img_to_array(img_resized)
+                # x = np.expand_dims(x, axis=0)
+                # x /= 255
+                # preds = model.predict(x)
+                # st.write("Hasil prediksi:", preds)
 
-                    prediction = classifier.predict(img_array)
-                    class_index = np.argmax(prediction)
-                    confidence = np.max(prediction)
-
-                    labels = ["Indoor", "Outdoor"]
-                    predicted_label = labels[class_index]
-
-                    if confidence >= 0.7:
-                        st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
-                        st.progress(float(confidence))
-                        if confidence > 0.85:
-                            st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
-                        elif confidence > 0.6:
-                            st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
-                    else:
-                        st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
-                        st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
-
-# ==========================
-# FOOTER
-# ==========================
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<p class='footer'>Made 💕 by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
