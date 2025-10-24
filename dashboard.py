@@ -48,7 +48,7 @@ st.markdown("""
     font-style: italic;
     color: #b3005a;
     font-size: 1.1rem;
-    margin-bottom: 3rem; /* jarak bawah lebih besar */
+    margin-bottom: 3rem;
 }
 
 /* Uploader box custom */
@@ -102,6 +102,34 @@ with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
 # ==========================
 st.sidebar.title("🌸 Pilih Mode")
 mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+
+# Deskripsi dinamis di sidebar
+if mode == "Deteksi Objek (YOLO)":
+    st.sidebar.markdown("""
+    ---
+    ### 🎯 Tentang Mode Ini:
+    Mode **Deteksi Objek (YOLO)** akan mencari dan mengenali objek yang ada di dalam gambar kamu 🧠✨  
+    - Model: `YOLOv8`  
+    - Gunakan gambar bertema **Spongebob vs Patrick** untuk hasil paling seru!  
+    - Hasil: bounding box dan label objek yang terdeteksi 💕
+    """)
+else:
+    st.sidebar.markdown("""
+    ---
+    ### 🧠 Tentang Mode Ini:
+    Mode **Klasifikasi Gambar** digunakan untuk mengenali apakah gambar kamu bertema  
+    **Indoor** atau **Outdoor** 🌇🌿  
+    - Model: CNN berbasis `TensorFlow`  
+    - Gunakan gambar ruangan atau pemandangan luar untuk uji coba!  
+    - Hasil: label + tingkat keyakinan model 🎀
+    """)
+
+st.sidebar.markdown("""
+---
+💡 *Tips:*  
+Kamu bisa upload lebih dari satu gambar sekaligus ya!  
+Setelah itu klik tombol 💖 untuk memulai prediksi.
+""")
 
 # ==========================
 # MAIN CONTENT
