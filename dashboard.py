@@ -1,8 +1,4 @@
 import streamlit as st
-from ultralytics import YOLO
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-import numpy as np
 from PIL import Image
 
 # ======== PAGE CONFIG ========
@@ -19,15 +15,17 @@ st.markdown("""
 .stApp {
     background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
+    overflow: hidden;
 }
 
-/* Sidebar */
+/* Sidebar style */
 [data-testid="stSidebar"] {
     background: linear-gradient(to bottom, #ffe4ec, #ffc1d6);
     color: #4b0f31;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Sidebar title */
+/* Sidebar header */
 .sidebar-title {
     font-size: 22px;
     font-weight: 700;
@@ -35,7 +33,15 @@ st.markdown("""
     margin-bottom: 10px;
 }
 
-/* Deskripsi box */
+/* Mode section title */
+.mode-section {
+    font-size: 15px;
+    font-weight: 600;
+    color: #4b0f31;
+    margin-top: 20px;
+}
+
+/* Deskripsi card */
 .desc-box {
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 15px;
@@ -44,7 +50,7 @@ st.markdown("""
     box-shadow: 0px 3px 6px rgba(255, 182, 193, 0.4);
 }
 
-/* Tips */
+/* Tips text */
 .tips {
     font-size: 13px;
     color: #4b0f31;
@@ -58,6 +64,7 @@ st.markdown("""
 st.sidebar.markdown('<p class="sidebar-title">🌸 Pilih Mode</p>', unsafe_allow_html=True)
 mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
+# Deskripsi tampil sesuai mode yang dipilih
 if mode == "Deteksi Objek (YOLO)":
     st.sidebar.markdown("""
     <div class="desc-box">
@@ -78,6 +85,7 @@ elif mode == "Klasifikasi Gambar":
     </div>
     """, unsafe_allow_html=True)
 
+# Tips tanpa kotak
 st.sidebar.markdown("""
 <p class="tips">💡 Kamu bisa upload <b>beberapa gambar sekaligus</b> 
 untuk deteksi & klasifikasi seru 💕</p>
@@ -93,69 +101,17 @@ st.markdown("""
 </p>
 """, unsafe_allow_html=True)
 
-# ======== FILE UPLOAD ========
+# Upload file area
 uploaded_files = st.file_uploader(
     "📸 Seret dan lepas (drag & drop) beberapa gambar kamu di sini 💕",
     accept_multiple_files=True,
     type=["jpg", "jpeg", "png"]
 )
 
-# ======== PROSES DETEKSI / KLASIFIKASI ========
 if uploaded_files:
-    if mode == "Deteksi Objek (YOLO)":
-        model = YOLO("best.pt")  # ganti dengan modelmu
-
-        if len(uploaded_files) == 1:
-            # Jika hanya 1 gambar → tampil besar
-            file = uploaded_files[0]
-            img = Image.open(file)
-            st.image(img, caption=file.name, use_container_width=True)
-            
-            results = model.predict(img)
-            for r in results:
-                result_img = r.plot()  # hasil deteksi
-                st.image(result_img, caption="💖 Hasil Deteksi Objek 💖", use_container_width=True)
-            st.success("✅ Objek berhasil terdeteksi!")
-
-        else:
-            # Jika lebih dari 1 gambar → tampil grid 2 kolom
-            cols = st.columns(2)
-            for idx, file in enumerate(uploaded_files):
-                img = Image.open(file)
-                results = model.predict(img)
-                for r in results:
-                    result_img = r.plot()
-                    with cols[idx % 2]:
-                        st.image(result_img, caption=f"💖 {file.name}", use_container_width=True)
-
-    elif mode == "Klasifikasi Gambar":
-        model = tf.keras.models.load_model("model_klasifikasi.h5")  # ganti model kamu
-        class_names = ["Indoor", "Outdoor"]
-
-        if len(uploaded_files) == 1:
-            file = uploaded_files[0]
-            img = Image.open(file)
-            st.image(img, caption=file.name, use_container_width=True)
-
-            img_resized = img.resize((128, 128))
-            img_array = image.img_to_array(img_resized) / 255.0
-            img_array = np.expand_dims(img_array, axis=0)
-            pred = model.predict(img_array)
-            label = class_names[int(pred[0] > 0.5)]
-
-            st.subheader(f"💗 Gambar ini terklasifikasi sebagai: **{label}** 💗")
-
-        else:
-            cols = st.columns(2)
-            for idx, file in enumerate(uploaded_files):
-                img = Image.open(file)
-                img_resized = img.resize((128, 128))
-                img_array = image.img_to_array(img_resized) / 255.0
-                img_array = np.expand_dims(img_array, axis=0)
-                pred = model.predict(img_array)
-                label = class_names[int(pred[0] > 0.5)]
-                with cols[idx % 2]:
-                    st.image(img, caption=f"💗 {file.name} → {label}", use_container_width=True)
+    for file in uploaded_files:
+        image = Image.open(file)
+        st.image(image, caption=file.name, use_container_width=True)
 
 st.markdown("""
 <p style='text-align:center; color:#8b004f; margin-top:30px;'>
