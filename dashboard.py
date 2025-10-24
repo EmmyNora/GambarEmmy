@@ -153,7 +153,7 @@ elif mode == "Klasifikasi Gambar":
     </div>
     """, unsafe_allow_html=True)
 
-st.sidebar.markdown("💡*Tips:* kamu bisa upload beberapa gambar sekaligus")
+st.sidebar.markdown("*Tips:* kamu bisa upload beberapa gambar sekaligus")
 
 # ==========================
 # MAIN CONTENT
