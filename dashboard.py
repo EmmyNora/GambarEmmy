@@ -148,12 +148,12 @@ elif mode == "Klasifikasi Gambar":
     <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 15px rgba(255,150,180,0.4); margin-top:1rem;'>
     <b>🧠 Model Klasifikasi</b><br>
     Mengenali jenis gambar:<br>
-    • 🏠 <b>Indoor</b> — di dalam ruangan<br>
-    • 🌳 <b>Outdoor</b> — di luar ruangan
+    • 🏠 <b>Indoor<br>
+    • 🌳 <b>Outdoor</b>
     </div>
     """, unsafe_allow_html=True)
 
-st.sidebar.markdown("💡*Tips:*kamu bisa upload beberapa gambar sekaligus")
+st.sidebar.markdown("💡*Tips:* kamu bisa upload beberapa gambar sekaligus")
 
 # ==========================
 # MAIN CONTENT
