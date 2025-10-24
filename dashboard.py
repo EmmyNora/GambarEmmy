@@ -19,7 +19,7 @@ st.set_page_config(
 # ==========================
 st.markdown("""
 <style>
-/* Background gradiasi 3D */
+/* Background gradiasi lembut */
 .stApp {
     background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
@@ -69,27 +69,35 @@ st.markdown("""
     font-style: italic;
     color: #b3005a;
     font-size: 1.1rem;
-    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 3rem; /* jarak lebih besar ke bawah */
 }
 
-/* Upload area */
+/* Upload area — mirip contoh gambar kedua */
 .upload-box {
-    border: 3px dashed #ff8fab;
+    border: 2px dashed #ff9ac4;
     border-radius: 15px;
-    padding: 20px;
+    background: rgba(255, 245, 248, 0.8);
+    padding: 25px;
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.5);
-    margin-top: 10px;
-    margin-bottom: 10px;
-    box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
+    box-shadow: 0 0 15px rgba(255, 150, 180, 0.3);
+    width: 90%;
+    margin: 0 auto 20px auto;
 }
 
-/* Footer */
+.upload-box p {
+    margin: 0;
+    font-size: 1rem;
+    color: #b3005a;
+}
+
+/* Footer — diturunkan sedikit */
 .footer {
     text-align: center;
     color: #b3005a;
     font-weight: 500;
-    margin-top: 1.5rem;
+    margin-top: 3rem;
+    padding-bottom: 1rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -136,7 +144,13 @@ else:
 # ==========================
 st.markdown('<div class="main-title">💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗</div>', unsafe_allow_html=True)
 st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
-st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
+
+# Kotak upload baru bergaya lembut
+st.markdown("""
+<div class="upload-box">
+📸 <b>Seret dan lepas (drag & drop)</b> beberapa gambar kamu di sini 💕
+</div>
+""", unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
@@ -148,21 +162,17 @@ if uploaded_files:
             img = Image.open(file).convert("RGB")
             st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
 
-            # === MODE 1: DETEKSI OBJEK ===
             if mode == "Deteksi Objek (YOLO)":
                 with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
                     results = yolo_model.predict(img, conf=0.6, verbose=False)
                     boxes = results[0].boxes
-
                     if boxes is not None and len(boxes) > 0:
                         st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
                         st.success("✅ Objek berhasil terdeteksi!")
                     else:
                         st.warning("🚫 Tidak ada objek yang terdeteksi.")
                         st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
-
-            # === MODE 2: KLASIFIKASI GAMBAR ===
-            elif mode == "Klasifikasi Gambar":
+            else:
                 with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
                     img_resized = img.resize((128, 128))
                     img_array = image.img_to_array(img_resized)
