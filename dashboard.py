@@ -39,7 +39,7 @@ st.markdown("""
     text-align: center;
     font-size: 2.6rem;
     color: #b3005a;
-    font-family: 'Poppins', cursive;
+    font-family: 'Comic Neue', cursive;
     text-shadow: 2px 2px 10px #ffbad5, 0 0 25px #ff8fab;
     margin-top: 1rem;
 }
@@ -139,8 +139,8 @@ if mode == "Deteksi Objek (YOLO)":
     <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 15px rgba(255,150,180,0.4); margin-top:1rem;'>
     <b>🔍 Model YOLO (.pt)</b><br>
     Mendeteksi karakter:<br>
-    • 🧽 <b>Spongebob</b><br>
-    • ⭐ <b>Patrick</b>
+    🧽 <b>Spongebob</b><br>
+    ⭐ <b>Patrick</b>
     </div>
     """, unsafe_allow_html=True)
 elif mode == "Klasifikasi Gambar":
@@ -148,8 +148,8 @@ elif mode == "Klasifikasi Gambar":
     <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 15px rgba(255,150,180,0.4); margin-top:1rem;'>
     <b>🧠 Model Klasifikasi</b><br>
     Mengenali jenis gambar:<br>
-    • 🏠 <b>Indoor<br>
-    • 🌳 <b>Outdoor</b>
+    🏠 <b>Indoor<br>
+    🌳 <b>Outdoor</b>
     </div>
     """, unsafe_allow_html=True)
 
@@ -158,7 +158,7 @@ st.sidebar.markdown("💡*Tips:* kamu bisa upload beberapa gambar sekaligus")
 # ==========================
 # MAIN CONTENT
 # ==========================
-st.markdown('<div class="main-title">💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">💗 **PinkLens: Deteksi Objek & Klasifikasi Gambar** 💗</div>', unsafe_allow_html=True)
 st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader(
