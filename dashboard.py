@@ -158,7 +158,7 @@ st.sidebar.markdown("💡*Tips:* kamu bisa upload beberapa gambar sekaligus")
 # ==========================
 # MAIN CONTENT
 # ==========================
-st.markdown('<div class="main-title">💗 **PinkLens: Deteksi Objek & Klasifikasi Gambar** 💗</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">💗 ** PinkLens: Deteksi Objek & Klasifikasi Gambar ** 💗</div>', unsafe_allow_html=True)
 st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader(
