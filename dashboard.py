@@ -1,3 +1,4 @@
+bisa tambahin bayangan dibagian, judul, sama pilih mode dan listnya. ini syntaxnya ya:
 import streamlit as st
 from ultralytics import YOLO
 import tensorflow as tf
@@ -15,7 +16,7 @@ st.set_page_config(
 )
 
 # ==========================
-# STYLE GLOWING & FONT UNIK + SHADOW
+# STYLE GLOWING & FONT UNIK
 # ==========================
 st.markdown("""
 <style>
@@ -30,7 +31,7 @@ st.markdown("""
 [data-testid="stSidebar"] {
     background: linear-gradient(to bottom, #ffe6ee, #ffc6d5, #ff9ec4);
     border-right: 3px solid #ff82a9;
-    box-shadow: 6px 0 25px rgba(255, 100, 150, 0.35);
+    box-shadow: 4px 0 15px rgba(255, 100, 150, 0.3);
     padding-top: 1rem;
 }
 
@@ -40,7 +41,7 @@ st.markdown("""
     font-size: 2.6rem;
     color: #b3005a;
     font-family: 'Comic Neue', cursive;
-    text-shadow: 2px 2px 12px #ffbad5, 0 0 30px #ff8fab;
+    text-shadow: 2px 2px 10px #ffbad5, 0 0 25px #ff8fab;
     margin-top: 1rem;
 }
 
@@ -51,7 +52,6 @@ st.markdown("""
     color: #b3005a;
     font-size: 1.2rem;
     margin-bottom: 3rem;
-    text-shadow: 1px 1px 8px rgba(255,150,180,0.6);
 }
 
 /* Drag & Drop */
@@ -60,14 +60,14 @@ st.markdown("""
     background-color: rgba(255, 240, 245, 0.8);
     border-radius: 15px;
     padding: 25px;
-    box-shadow: 0 0 25px rgba(255, 150, 180, 0.45);
+    box-shadow: 0 0 20px rgba(255, 150, 180, 0.4);
     text-align: center;
     width: 80%;
     margin: 0 auto 2rem auto;
     transition: all 0.3s ease-in-out;
 }
 [data-testid="stFileUploader"]:hover {
-    box-shadow: 0 0 40px rgba(255, 120, 160, 0.65);
+    box-shadow: 0 0 35px rgba(255, 120, 160, 0.6);
     background-color: rgba(255, 250, 252, 0.95);
 }
 
@@ -80,7 +80,7 @@ div.stButton > button:first-child {
     border: none;
     border-radius: 20px;
     padding: 0.8rem 1.5rem;
-    box-shadow: 0 0 25px rgba(255, 105, 180, 0.75), 0 0 50px rgba(255, 182, 193, 0.45);
+    box-shadow: 0 0 20px rgba(255, 105, 180, 0.7), 0 0 40px rgba(255, 182, 193, 0.4);
     text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
     transition: all 0.3s ease-in-out;
     font-family: 'Comic Neue', 'Poppins', cursive;
@@ -88,7 +88,7 @@ div.stButton > button:first-child {
 div.stButton > button:first-child:hover {
     background: linear-gradient(135deg, #ff99cc, #ff66b3, #ffb6c1);
     transform: scale(1.07);
-    box-shadow: 0 0 45px rgba(255, 105, 180, 0.9), 0 0 70px rgba(255, 182, 193, 0.6);
+    box-shadow: 0 0 35px rgba(255, 105, 180, 0.9), 0 0 70px rgba(255, 182, 193, 0.6);
 }
 
 /* Kartu hasil */
@@ -97,13 +97,12 @@ div.stButton > button:first-child:hover {
     border-radius: 20px;
     padding: 1.3rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 0 25px rgba(255, 100, 150, 0.5), inset 0 0 15px rgba(255, 182, 193, 0.45);
+    box-shadow: 0 0 20px rgba(255, 100, 150, 0.4), inset 0 0 10px rgba(255, 182, 193, 0.4);
     border: 1px solid #ff9ec4;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out;
 }
 .result-card:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 35px rgba(255, 130, 180, 0.6);
 }
 
 /* Footer */
@@ -114,7 +113,6 @@ div.stButton > button:first-child:hover {
     font-family: 'Comic Neue', cursive;
     margin-top: 4rem;
     padding-bottom: 1rem;
-    text-shadow: 1px 1px 8px rgba(255,150,180,0.6);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -139,7 +137,7 @@ mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gam
 
 if mode == "Deteksi Objek (YOLO)":
     st.sidebar.markdown("""
-    <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 20px rgba(255,150,180,0.45); margin-top:1rem;'>
+    <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 15px rgba(255,150,180,0.4); margin-top:1rem;'>
     <b>🔍 Model YOLO (.pt)</b><br>
     Mendeteksi karakter:<br>
     🧽 <b>Spongebob</b><br>
@@ -148,7 +146,7 @@ if mode == "Deteksi Objek (YOLO)":
     """, unsafe_allow_html=True)
 elif mode == "Klasifikasi Gambar":
     st.sidebar.markdown("""
-    <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 20px rgba(255,150,180,0.45); margin-top:1rem;'>
+    <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 15px rgba(255,150,180,0.4); margin-top:1rem;'>
     <b>🧠 Model Klasifikasi</b><br>
     Mengenali jenis gambar:<br>
     🏠 <b>Indoor<br>
