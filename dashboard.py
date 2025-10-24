@@ -139,21 +139,21 @@ if mode == "Deteksi Objek (YOLO)":
     <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 15px rgba(255,150,180,0.4); margin-top:1rem;'>
     <b>🔍 Model YOLO (.pt)</b><br>
     Mendeteksi karakter:<br>
-    • 🟡 <b>Spongebob</b><br>
-    • 💗 <b>Patrick</b>
+    • 🧽 <b>Spongebob</b><br>
+    • ⭐ <b>Patrick</b>
     </div>
     """, unsafe_allow_html=True)
 elif mode == "Klasifikasi Gambar":
     st.sidebar.markdown("""
     <div style='background-color:#ffe6ee; border-radius:15px; padding:15px; border:1px solid #ffb6c1; box-shadow:0 0 15px rgba(255,150,180,0.4); margin-top:1rem;'>
-    <b>🧠 Model Klasifikasi (.h5)</b><br>
+    <b>🧠 Model Klasifikasi</b><br>
     Mengenali jenis gambar:<br>
     • 🏠 <b>Indoor</b> — di dalam ruangan<br>
     • 🌳 <b>Outdoor</b> — di luar ruangan
     </div>
     """, unsafe_allow_html=True)
 
-st.sidebar.markdown("💡 *Tips:* kamu bisa upload **beberapa gambar sekaligus** untuk hasil yang lebih seru 💕")
+st.sidebar.markdown("💡*Tips:*kamu bisa upload beberapa gambar sekaligus")
 
 # ==========================
 # MAIN CONTENT
