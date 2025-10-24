@@ -133,7 +133,9 @@ if uploaded_files:
     st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
 
     if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
-        # Jika hanya 1 gambar, tampilkan fullscreen
+        # ==============================
+        # Jika hanya 1 gambar (FULLSCREEN)
+        # ==============================
         if len(uploaded_files) == 1:
             for file in uploaded_files:
                 img = Image.open(file).convert("RGB")
@@ -180,12 +182,13 @@ if uploaded_files:
                                 st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
                             st.markdown('</div>', unsafe_allow_html=True)
 
-        # Jika lebih dari 1 gambar, tampilkan 2 kolom per baris
+        # ==============================
+        # Jika lebih dari 1 gambar (2 kolom)
+        # ==============================
         else:
             cols = st.columns(2)
             for i, file in enumerate(uploaded_files):
-                col = cols[i % 2]
-                with col:
+                with cols[i % 2]:
                     img = Image.open(file).convert("RGB")
                     st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
 
@@ -195,6 +198,7 @@ if uploaded_files:
                             boxes = results[0].boxes
                             st.markdown('<div class="result-card">', unsafe_allow_html=True)
                             if boxes is not None and len(boxes) > 0:
+                                # tampilkan hasil deteksi sama besar dengan input
                                 st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
                                 st.success("✅ Objek berhasil terdeteksi!")
                             else:
