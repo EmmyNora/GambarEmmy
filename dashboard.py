@@ -39,7 +39,7 @@ st.markdown("""
     text-align: center;
     font-size: 2.6rem;
     color: #b3005a;
-    font-family: 'Comic Neue', cursive;
+    font-family: 'Poppins', cursive;
     text-shadow: 2px 2px 10px #ffbad5, 0 0 25px #ff8fab;
     margin-top: 1rem;
 }
@@ -170,7 +170,7 @@ uploaded_files = st.file_uploader(
 if uploaded_files:
     st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
 
-    if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
+    if st.button(" Jalankan Prediksi / Klasifikasi "):
         # ==================== 1 GAMBAR ====================
         if len(uploaded_files) == 1:
             for file in uploaded_files:
@@ -265,4 +265,4 @@ if uploaded_files:
 # FOOTER
 # ==========================
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<p class='footer'>Made with 💕 by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
+st.markdown("<p class='footer'>Made by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
