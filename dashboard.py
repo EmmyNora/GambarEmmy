@@ -118,7 +118,7 @@ elif mode == "Klasifikasi Gambar":
     """, unsafe_allow_html=True)
 
 # Tips hanya kalimat biasa
-st.sidebar.markdown("💡 *Tips:* kamu bisa upload **beberapa gambar sekaligus** untuk deteksi & klasifikasi seru 💕")
+st.sidebar.markdown("💡 *Tips:* kamu bisa upload **beberapa gambar sekaligus**")
 
 # ==========================
 # MAIN CONTENT
