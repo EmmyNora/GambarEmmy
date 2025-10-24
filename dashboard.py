@@ -19,7 +19,7 @@ st.set_page_config(
 # ==========================
 st.markdown("""
 <style>
-/* Background gradiasi lembut */
+/* Background gradiasi */
 .stApp {
     background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
@@ -34,26 +34,7 @@ st.markdown("""
     padding-top: 1rem;
 }
 
-/* Sidebar title */
-.sidebar-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #b3005a;
-    text-shadow: 1px 1px 3px #ffc0cb;
-    margin-bottom: 1rem;
-}
-
-/* Deskripsi box */
-.desc-box {
-    background-color: rgba(255, 240, 245, 0.7);
-    border: 2px solid #ff8fab;
-    border-radius: 12px;
-    padding: 10px;
-    margin-top: 10px;
-    box-shadow: inset 0 0 10px rgba(255, 150, 180, 0.4);
-}
-
-/* Main title */
+/* Title & slogan */
 .main-title {
     text-align: center;
     font-size: 2.3rem;
@@ -62,41 +43,43 @@ st.markdown("""
     text-shadow: 2px 2px 6px #ffbad5;
     margin-top: 1rem;
 }
-
-/* Slogan */
 .slogan {
     text-align: center;
     font-style: italic;
     color: #b3005a;
     font-size: 1.1rem;
-    margin-top: 0.5rem;
-    margin-bottom: 3rem; /* jarak lebih besar ke bawah */
+    margin-bottom: 3rem; /* jarak bawah lebih besar */
 }
 
-/* Upload area — mirip contoh gambar kedua */
-.upload-box {
-    border: 2px dashed #ff9ac4;
+/* Uploader box custom */
+[data-testid="stFileUploader"] {
+    border: 2px dashed #ff8fab;
+    background-color: rgba(255, 240, 245, 0.7);
     border-radius: 15px;
-    background: rgba(255, 245, 248, 0.8);
     padding: 25px;
-    text-align: center;
     box-shadow: 0 0 15px rgba(255, 150, 180, 0.3);
-    width: 90%;
-    margin: 0 auto 20px auto;
+    text-align: center;
+    width: 80%;
+    margin: 0 auto 2rem auto;
+    transition: all 0.3s ease-in-out;
+}
+[data-testid="stFileUploader"]:hover {
+    box-shadow: 0 0 25px rgba(255, 120, 160, 0.5);
+    background-color: rgba(255, 245, 250, 0.9);
 }
 
-.upload-box p {
-    margin: 0;
-    font-size: 1rem;
-    color: #b3005a;
+/* Text uploader */
+[data-testid="stFileUploader"] section div {
+    color: #b3005a !important;
+    font-weight: 500 !important;
 }
 
-/* Footer — diturunkan sedikit */
+/* Footer */
 .footer {
     text-align: center;
     color: #b3005a;
     font-weight: 500;
-    margin-top: 3rem;
+    margin-top: 4rem;
     padding-bottom: 1rem;
 }
 </style>
@@ -117,27 +100,8 @@ with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
 # ==========================
 # SIDEBAR
 # ==========================
-st.sidebar.markdown('<div class="sidebar-title">🌸 Pilih Mode</div>', unsafe_allow_html=True)
+st.sidebar.title("🌸 Pilih Mode")
 mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
-
-if mode == "Deteksi Objek (YOLO)":
-    st.sidebar.markdown("""
-    <div class="desc-box">
-    🔍 <b>Model YOLO (.pt)</b><br>
-    mendeteksi karakter:<br>
-    • 🟡 <b>Spongebob</b><br>
-    • 💗 <b>Patrick</b>
-    </div>
-    """, unsafe_allow_html=True)
-else:
-    st.sidebar.markdown("""
-    <div class="desc-box">
-    🧠 <b>Model Keras (.h5)</b><br>
-    mengklasifikasikan gambar:<br>
-    • 🪴 <b>Indoor</b><br>
-    • 🌤️ <b>Outdoor</b>
-    </div>
-    """, unsafe_allow_html=True)
 
 # ==========================
 # MAIN CONTENT
@@ -145,14 +109,11 @@ else:
 st.markdown('<div class="main-title">💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗</div>', unsafe_allow_html=True)
 st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
 
-# Kotak upload baru bergaya lembut
-st.markdown("""
-<div class="upload-box">
-📸 <b>Seret dan lepas (drag & drop)</b> beberapa gambar kamu di sini 💕
-</div>
-""", unsafe_allow_html=True)
-
-uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+uploaded_files = st.file_uploader(
+    "📸 Seret dan lepas (drag & drop) beberapa gambar kamu di sini 💕",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True
+)
 
 # Tombol prediksi
 if uploaded_files:
