@@ -5,189 +5,99 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 
-# ==========================
-# KONFIGURASI HALAMAN
-# ==========================
-st.set_page_config(
-    page_title="💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗",
-    page_icon="🌸",
-    layout="wide"
-)
-
-# ==========================
-# STYLE 
-# ==========================
+# ======== STYLE ========
 st.markdown("""
 <style>
-/* Background gradiasi 3D */
+/* Background gradiasi pink 3D */
 .stApp {
     background: linear-gradient(to bottom, #ffdce5, #ffb6c1, #ff9ec4);
     font-family: 'Poppins', sans-serif;
 }
 
-/* Sidebar */
+/* Sidebar styling */
 [data-testid="stSidebar"] {
-    background: linear-gradient(to bottom, #ffe3eb, #ffc6d5, #ff9ec4);
-    color: #4a0032;
-    border-right: 3px solid #ff82a9;
-    box-shadow: 4px 0 15px rgba(255, 100, 150, 0.3);
-    padding-top: 1rem;
+    background: linear-gradient(to bottom, #ffe4ec, #ffd1dc, #ffb6c1);
+    color: #4a4a4a;
+    font-size: 15px;
 }
 
-/* Sidebar title */
-.sidebar-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #b3005a;
-    text-shadow: 1px 1px 3px #ffc0cb;
-    margin-bottom: 1rem;
-}
-
-/* Deskripsi box */
-.desc-box {
-    background-color: rgba(255, 240, 245, 0.7);
-    border: 2px solid #ff8fab;
-    border-radius: 12px;
-    padding: 10px;
-    margin-top: 10px;
-    box-shadow: inset 0 0 10px rgba(255, 150, 180, 0.4);
-}
-
-/* Main title */
-.main-title {
+/* Judul utama */
+.title {
     text-align: center;
-    font-size: 2.3rem;
-    color: #b3005a;
+    color: #e75480;
     font-weight: 800;
-    text-shadow: 2px 2px 6px #ffbad5;
-    margin-top: 1rem;
+    font-size: 36px;
 }
 
 /* Slogan */
 .slogan {
     text-align: center;
+    color: #ff69b4;
     font-style: italic;
-    color: #b3005a;
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
+    font-size: 18px;
+    margin-bottom: 30px;
 }
 
-/* Upload area */
-.upload-box {
-    border: 3px dashed #ff8fab;
-    border-radius: 15px;
-    padding: 20px;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.5);
-    margin-top: 10px;
-    margin-bottom: 10px;
-    box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
+/* Tombol */
+.stButton > button {
+    background-color: #ff80ab;
+    color: white;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    transition: 0.3s;
 }
-
-/* Footer */
-.footer {
-    text-align: center;
-    color: #b3005a;
-    font-weight: 500;
-    margin-top: 1.5rem;
+.stButton > button:hover {
+    background-color: #ff4081;
+    transform: scale(1.05);
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ==========================
-# LOAD MODEL
-# ==========================
-@st.cache_resource
-def load_models():
-    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")
-    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")
-    return yolo_model, classifier
+# ======== TITLE ========
+st.markdown('<h1 class="title">PinkLens : Deteksi Objek & Klasifikasi Gambar</h1>', unsafe_allow_html=True)
+st.markdown('<p class="slogan">🌸 See Differently, See in Pink 🌸</p>', unsafe_allow_html=True)
 
-with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
-    yolo_model, classifier = load_models()
+# ======== SIDEBAR ========
+st.sidebar.title("🔍 Model YOLO (.pt)")
+st.sidebar.write("mendeteksi karakter:")
+st.sidebar.markdown("""
+- 🟡 **Spongebob**  
+- 💗 **Patrick**
+""")
 
-# ==========================
-# SIDEBAR
-# ==========================
-st.sidebar.markdown('<div class="sidebar-title">🌸 Pilih Mode</div>', unsafe_allow_html=True)
-mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+# ======== UPLOAD IMAGE ========
+uploaded_file = st.file_uploader("Unggah gambar untuk dideteksi atau diklasifikasi:", type=["jpg", "jpeg", "png"])
 
-if mode == "Deteksi Objek (YOLO)":
-    st.sidebar.markdown("""
-    <div class="desc-box">
-    🔍 <b>Model YOLO (.pt)</b><br>
-    mendeteksi karakter:<br>
-    • 🟡 <b>Spongebob</b><br>
-    • 💗 <b>Patrick</b>
-    </div>
-    """, unsafe_allow_html=True)
-else:
-    st.sidebar.markdown("""
-    <div class="desc-box">
-    🧠 <b>Model Keras (.h5)</b><br>
-    mengklasifikasikan gambar:<br>
-    • 🪴 <b>Indoor</b><br>
-    • 🌤️ <b>Outdoor</b>
-    </div>
-    """, unsafe_allow_html=True)
+# ======== MODEL SETUP ========
+# Load YOLO model
+yolo_model = YOLO("model_yolo.pt")  # ganti dengan path model YOLO kamu
+# Load CNN model (misal untuk klasifikasi tambahan)
+cnn_model = tf.keras.models.load_model("model_klasifikasi.h5")  # ganti dengan modelmu
 
-# ==========================
-# MAIN CONTENT
-# ==========================
-st.markdown('<div class="main-title">💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗</div>', unsafe_allow_html=True)
-st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
-st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
+# ======== DETEKSI DAN KLASIFIKASI ========
+if uploaded_file is not None:
+    img = Image.open(uploaded_file)
+    st.image(img, caption="Gambar yang diunggah", use_column_width=True)
 
-uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+    # Tombol Prediksi
+    if st.button("🔮 Deteksi / Klasifikasi"):
+        with st.spinner("Model sedang bekerja... 💗"):
+            # Deteksi dengan YOLO
+            results = yolo_model(img)
+            yolo_labels = results[0].boxes.cls if hasattr(results[0], 'boxes') else []
+            st.subheader("🎯 Hasil Deteksi YOLO:")
+            if len(yolo_labels) == 0:
+                st.write("Tidak ada objek terdeteksi.")
+            else:
+                st.write(results[0].names)
 
-# Tombol prediksi
-if uploaded_files:
-    st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
-    if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
-        for file in uploaded_files:
-            img = Image.open(file).convert("RGB")
-            st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
-
-            # === MODE 1: DETEKSI OBJEK ===
-            if mode == "Deteksi Objek (YOLO)":
-                with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
-                    results = yolo_model.predict(img, conf=0.6, verbose=False)
-                    boxes = results[0].boxes
-
-                    if boxes is not None and len(boxes) > 0:
-                        st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
-                        st.success("✅ Objek berhasil terdeteksi!")
-                    else:
-                        st.warning("🚫 Tidak ada objek yang terdeteksi.")
-                        st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
-
-            # === MODE 2: KLASIFIKASI GAMBAR ===
-            elif mode == "Klasifikasi Gambar":
-                with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
-                    img_resized = img.resize((128, 128))
-                    img_array = image.img_to_array(img_resized)
-                    img_array = np.expand_dims(img_array, axis=0) / 255.0
-
-                    prediction = classifier.predict(img_array)
-                    class_index = np.argmax(prediction)
-                    confidence = np.max(prediction)
-
-                    labels = ["Indoor", "Outdoor"]
-                    predicted_label = labels[class_index]
-
-                    if confidence >= 0.7:
-                        st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
-                        st.progress(float(confidence))
-                        if confidence > 0.85:
-                            st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
-                        elif confidence > 0.6:
-                            st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
-                    else:
-                        st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
-                        st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
-
-# ==========================
-# FOOTER
-# ==========================
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<p class='footer'>Made 💕 by <b>Emmy Nora</b> 🌷</p>", unsafe_allow_html=True)
+            # Klasifikasi dengan CNN (contoh sederhana)
+            img_resized = img.resize((128, 128))
+            img_array = image.img_to_array(img_resized)
+            img_array = np.expand_dims(img_array, axis=0)
+            img_array = img_array / 255.0
+            prediction = cnn_model.predict(img_array)
+            pred_label = np.argmax(prediction)
+            st.subheader("🧠 Hasil Klasifikasi CNN:")
+            st.write(f"Label yang diprediksi: **{pred_label}**")
