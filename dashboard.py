@@ -14,9 +14,9 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==========================
-# STYLE GLOWING & FONT UNIK
-# ==========================
+# ===========
+# STYLE 
+# ===========
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Poppins:wght@400;600;800&display=swap');
