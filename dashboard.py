@@ -157,21 +157,19 @@ st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> g
 # ==========================
 # UPLOAD & PROSES GAMBAR
 # ==========================
-uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+uploaded_files = st.file_uploader(
+    "📸 Seret dan lepas (drag & drop) beberapa gambar di sini:",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True
+)
 
 if uploaded_files:
-    st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
+    st.write(f"🖼 Total gambar diunggah: *{len(uploaded_files)} file*")
 
-    # Tombol prediksi/klasifikasi
-    if mode == "Deteksi Objek (YOLO)":
-        predict_button = st.button("🔍 Deteksi Sekarang")
-    else:
-        predict_button = st.button("🧠 Klasifikasikan Sekarang")
+    for uploaded_file in uploaded_files:
+        img = Image.open(uploaded_file).convert("RGB")
+        st.image(img, caption=f"✨ {uploaded_file.name}", use_container_width=True)
 
-    # Tampilkan preview gambar dulu
-    for file in uploaded_files:
-        img = Image.open(file).convert("RGB")
-        st.image(img, caption=f"🖼 {file.name}", use_container_width=True)
 
     # Jalankan prediksi saat tombol diklik
     if predict_button:
