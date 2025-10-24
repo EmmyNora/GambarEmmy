@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ==========================
-# STYLE 
+# STYLE
 # ==========================
 st.markdown("""
 <style>
@@ -35,7 +35,7 @@ st.markdown("""
     padding-top: 1rem;
 }
 
-/* Sidebar content */
+/* Sidebar title */
 .sidebar-title {
     font-size: 1.4rem;
     font-weight: 700;
@@ -44,6 +44,7 @@ st.markdown("""
     margin-bottom: 1rem;
 }
 
+/* Deskripsi box */
 .desc-box {
     background-color: rgba(255, 240, 245, 0.7);
     border: 2px solid #ff8fab;
@@ -53,7 +54,24 @@ st.markdown("""
     box-shadow: inset 0 0 10px rgba(255, 150, 180, 0.4);
 }
 
-/* Main title */
+/* Tombol */
+div.stButton > button {
+    background: linear-gradient(135deg, #ff9ec4, #ffb6c1);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 25px;
+    box-shadow: 0px 4px 10px rgba(255, 100, 150, 0.3);
+    transition: 0.3s;
+}
+div.stButton > button:hover {
+    background: linear-gradient(135deg, #ffb6c1, #ff8fab);
+    box-shadow: 0px 6px 15px rgba(255, 100, 150, 0.5);
+    transform: scale(1.05);
+}
+
+/* Judul utama */
 .main-title {
     text-align: center;
     font-size: 2.3rem;
@@ -89,8 +107,8 @@ st.markdown("""
 # ==========================
 @st.cache_resource
 def load_models():
-    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")  # path ke model YOLO kamu
-    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")  # path ke model Keras kamu
+    yolo_model = YOLO("model/Emmy Nora_Laporan 4.pt")
+    classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")
     return yolo_model, classifier
 
 with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
@@ -106,17 +124,27 @@ mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gam
 if mode == "Deteksi Objek (YOLO)":
     st.sidebar.markdown("""
     <div class="desc-box">
-    🔍 <b>Deteksi Objek (YOLO)</b><br>
-    Gunakan model YOLO (.pt) untuk mengenali karakter seperti
-    <b>Spongebob</b> 🧽 dan <b>Patrick</b> 🌟 pada gambar yang kamu unggah!
+        <p style="margin-bottom:4px;">
+        🔍 <i>Model YOLO (.pt)</i><br>
+        mendeteksi karakter:
+        </p>
+        <ul style="margin-top:0; padding-left:20px; list-style-type:none;">
+            <li>🟡 Spongebob</li>
+            <li>💗 Patrick</li>
+        </ul>
     </div>
     """, unsafe_allow_html=True)
 else:
     st.sidebar.markdown("""
     <div class="desc-box">
-    🧠 <b>Klasifikasi Gambar</b><br>
-    Gunakan model Keras (.h5) untuk membedakan gambar
-    <b>Indoor 🪴</b> dan <b>Outdoor 🌤️</b> secara otomatis!
+        <p style="margin-bottom:4px;">
+        🧠 <i>Model Keras (.h5)</i><br>
+        mengklasifikasikan gambar:
+        </p>
+        <ul style="margin-top:0; padding-left:20px; list-style-type:none;">
+            <li>🪴 Indoor</li>
+            <li>🌤️ Outdoor</li>
+        </ul>
     </div>
     """, unsafe_allow_html=True)
 
@@ -134,47 +162,59 @@ uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multip
 if uploaded_files:
     st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
 
+    # Tombol prediksi/klasifikasi
+    if mode == "Deteksi Objek (YOLO)":
+        predict_button = st.button("🔍 Deteksi Sekarang")
+    else:
+        predict_button = st.button("🧠 Klasifikasikan Sekarang")
+
+    # Tampilkan preview gambar dulu
     for file in uploaded_files:
         img = Image.open(file).convert("RGB")
-        st.image(img, caption=f"🖼️ {file.name}", use_column_width=True)
+        st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
 
-        # === MODE 1: DETEKSI OBJEK ===
-        if mode == "Deteksi Objek (YOLO)":
-            with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
-                results = yolo_model.predict(img, conf=0.6, verbose=False)
-                boxes = results[0].boxes
+    # Jalankan prediksi saat tombol diklik
+    if predict_button:
+        for file in uploaded_files:
+            img = Image.open(file).convert("RGB")
 
-                if boxes is not None and len(boxes) > 0:
-                    st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_column_width=True)
-                    st.success("✅ Objek berhasil terdeteksi!")
-                else:
-                    st.warning("🚫 Tidak ada objek yang terdeteksi.")
-                    st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
+            # === MODE DETEKSI YOLO ===
+            if mode == "Deteksi Objek (YOLO)":
+                with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
+                    results = yolo_model.predict(img, conf=0.6, verbose=False)
+                    boxes = results[0].boxes
 
-        # === MODE 2: KLASIFIKASI GAMBAR ===
-        elif mode == "Klasifikasi Gambar":
-            with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
-                img_resized = img.resize((128, 128))
-                img_array = image.img_to_array(img_resized)
-                img_array = np.expand_dims(img_array, axis=0) / 255.0
+                    if boxes is not None and len(boxes) > 0:
+                        st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
+                        st.success("✅ Objek berhasil terdeteksi!")
+                    else:
+                        st.warning("🚫 Tidak ada objek yang terdeteksi.")
+                        st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
 
-                prediction = classifier.predict(img_array)
-                class_index = np.argmax(prediction)
-                confidence = np.max(prediction)
+            # === MODE KLASIFIKASI GAMBAR ===
+            elif mode == "Klasifikasi Gambar":
+                with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
+                    img_resized = img.resize((128, 128))
+                    img_array = image.img_to_array(img_resized)
+                    img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-                labels = ["Indoor", "Outdoor"]
-                predicted_label = labels[class_index]
+                    prediction = classifier.predict(img_array)
+                    class_index = np.argmax(prediction)
+                    confidence = np.max(prediction)
 
-                if confidence >= 0.7:
-                    st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
-                    st.progress(float(confidence))
-                    if confidence > 0.85:
-                        st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
-                    elif confidence > 0.6:
-                        st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
-                else:
-                    st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
-                    st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
+                    labels = ["Indoor", "Outdoor"]
+                    predicted_label = labels[class_index]
+
+                    if confidence >= 0.7:
+                        st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
+                        st.progress(float(confidence))
+                        if confidence > 0.85:
+                            st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
+                        elif confidence > 0.6:
+                            st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
+                    else:
+                        st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
+                        st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
 
 # ==========================
 # FOOTER
