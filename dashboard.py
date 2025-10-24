@@ -69,19 +69,18 @@ st.markdown("""
     font-style: italic;
     color: #b3005a;
     font-size: 1.1rem;
-    margin-bottom: 1rem;
+    margin-top: -0.3rem;
+    margin-bottom: 1.3rem;
 }
 
-/* Upload area */
-.upload-box {
+/* Upload container */
+.upload-container {
     border: 3px dashed #ff8fab;
     border-radius: 15px;
-    padding: 20px;
-    text-align: center;
+    padding: 25px;
     background-color: rgba(255, 255, 255, 0.5);
-    margin-top: 10px;
-    margin-bottom: 10px;
     box-shadow: 0px 0px 15px rgba(255, 150, 180, 0.3);
+    text-align: center;
 }
 
 /* Footer */
@@ -103,8 +102,7 @@ def load_models():
     classifier = tf.keras.models.load_model("model/Emmy Nora_Laporan2.h5")
     return yolo_model, classifier
 
-with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
-    yolo_model, classifier = load_models()
+yolo_model, classifier = load_models()
 
 # ==========================
 # SIDEBAR
@@ -136,19 +134,30 @@ else:
 # ==========================
 st.markdown('<div class="main-title">💗 PinkLens: Deteksi Objek & Klasifikasi Gambar 💗</div>', unsafe_allow_html=True)
 st.markdown('<div class="slogan">🌸 See Differently, See in Pink 🌸</div>', unsafe_allow_html=True)
-st.markdown('<div class="upload-box">📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕</div>', unsafe_allow_html=True)
 
-uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+# Kotak upload gabung
+st.markdown("""
+<div class="upload-container">
+    📸 <b>Seret dan lepas (drag & drop)</b> gambar kamu di sini 💕
+</div>
+""", unsafe_allow_html=True)
 
-# Tombol prediksi
+uploaded_files = st.file_uploader(
+    "Upload gambar kamu di sini",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True,
+    label_visibility="collapsed"
+)
+
+# ==========================
+# TOMBOL PREDIKSI
+# ==========================
 if uploaded_files:
-    st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
     if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
         for file in uploaded_files:
             img = Image.open(file).convert("RGB")
             st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
 
-            # === MODE 1: DETEKSI OBJEK ===
             if mode == "Deteksi Objek (YOLO)":
                 with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
                     results = yolo_model.predict(img, conf=0.6, verbose=False)
@@ -161,7 +170,6 @@ if uploaded_files:
                         st.warning("🚫 Tidak ada objek yang terdeteksi.")
                         st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
 
-            # === MODE 2: KLASIFIKASI GAMBAR ===
             elif mode == "Klasifikasi Gambar":
                 with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
                     img_resized = img.resize((128, 128))
