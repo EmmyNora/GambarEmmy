@@ -96,7 +96,6 @@ with st.spinner("💫 Sedang memuat model kamu... tunggu sebentar ya 💕"):
 st.sidebar.title("🌸 Pilih Mode")
 mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
 
-# Tampilkan deskripsi berdasarkan mode
 if mode == "Deteksi Objek (YOLO)":
     st.sidebar.markdown("""
     <div style='background-color:#ffe6ee; border-radius:12px; padding:15px; border:1px solid #ffb6c1; margin-top:1rem;'>
@@ -106,7 +105,6 @@ if mode == "Deteksi Objek (YOLO)":
     • 💗 <b>Patrick</b>
     </div>
     """, unsafe_allow_html=True)
-
 elif mode == "Klasifikasi Gambar":
     st.sidebar.markdown("""
     <div style='background-color:#ffe6ee; border-radius:12px; padding:15px; border:1px solid #ffb6c1; margin-top:1rem;'>
@@ -117,8 +115,7 @@ elif mode == "Klasifikasi Gambar":
     </div>
     """, unsafe_allow_html=True)
 
-# Tips hanya kalimat biasa
-st.sidebar.markdown("💡*Tips:*kamu bisa upload beberapa gambar sekaligus")
+st.sidebar.markdown("💡 *Tips:* kamu bisa upload **beberapa gambar sekaligus** untuk deteksi & klasifikasi seru 💕")
 
 # ==========================
 # MAIN CONTENT
@@ -134,52 +131,100 @@ uploaded_files = st.file_uploader(
 
 if uploaded_files:
     st.success(f"✨ {len(uploaded_files)} gambar berhasil diunggah!")
-    
+
     if st.button("💖 Jalankan Prediksi / Klasifikasi 💖"):
-        for file in uploaded_files:
-            img = Image.open(file).convert("RGB")
-            st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
+        # Jika hanya 1 gambar, tampilkan fullscreen
+        if len(uploaded_files) == 1:
+            for file in uploaded_files:
+                img = Image.open(file).convert("RGB")
+                st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
 
-            if mode == "Deteksi Objek (YOLO)":
-                with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
-                    results = yolo_model.predict(img, conf=0.6, verbose=False)
-                    boxes = results[0].boxes
+                if mode == "Deteksi Objek (YOLO)":
+                    with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
+                        results = yolo_model.predict(img, conf=0.6, verbose=False)
+                        boxes = results[0].boxes
 
-                    with st.container():
-                        st.markdown('<div class="result-card">', unsafe_allow_html=True)
-                        if boxes is not None and len(boxes) > 0:
-                            st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
-                            st.success("✅ Objek berhasil terdeteksi!")
-                        else:
-                            st.warning("🚫 Tidak ada objek yang terdeteksi.")
-                            st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
-                        st.markdown('</div>', unsafe_allow_html=True)
+                        with st.container():
+                            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+                            if boxes is not None and len(boxes) > 0:
+                                # tampilkan hasil dengan ukuran penuh
+                                st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
+                                st.success("✅ Objek berhasil terdeteksi!")
+                            else:
+                                st.warning("🚫 Tidak ada objek yang terdeteksi.")
+                                st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
+                            st.markdown('</div>', unsafe_allow_html=True)
+                else:
+                    with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
+                        img_resized = img.resize((128, 128))
+                        img_array = image.img_to_array(img_resized)
+                        img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-            else:
-                with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
-                    img_resized = img.resize((128, 128))
-                    img_array = image.img_to_array(img_resized)
-                    img_array = np.expand_dims(img_array, axis=0) / 255.0
+                        prediction = classifier.predict(img_array)
+                        class_index = np.argmax(prediction)
+                        confidence = np.max(prediction)
 
-                    prediction = classifier.predict(img_array)
-                    class_index = np.argmax(prediction)
-                    confidence = np.max(prediction)
+                        labels = ["Indoor", "Outdoor"]
+                        predicted_label = labels[class_index]
 
-                    labels = ["Indoor", "Outdoor"]
-                    predicted_label = labels[class_index]
+                        with st.container():
+                            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+                            st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
+                            st.progress(float(confidence))
+                            if confidence > 0.85:
+                                st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
+                            elif confidence > 0.6:
+                                st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
+                            else:
+                                st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
+                                st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
+                            st.markdown('</div>', unsafe_allow_html=True)
 
-                    with st.container():
-                        st.markdown('<div class="result-card">', unsafe_allow_html=True)
-                        st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
-                        st.progress(float(confidence))
-                        if confidence > 0.85:
-                            st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
-                        elif confidence > 0.6:
-                            st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
-                        else:
-                            st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
-                            st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
-                        st.markdown('</div>', unsafe_allow_html=True)
+        # Jika lebih dari 1 gambar, tampilkan 2 kolom per baris
+        else:
+            cols = st.columns(2)
+            for i, file in enumerate(uploaded_files):
+                col = cols[i % 2]
+                with col:
+                    img = Image.open(file).convert("RGB")
+                    st.image(img, caption=f"🖼️ {file.name}", use_container_width=True)
+
+                    if mode == "Deteksi Objek (YOLO)":
+                        with st.spinner(f"🔍 Mendeteksi objek pada {file.name}..."):
+                            results = yolo_model.predict(img, conf=0.6, verbose=False)
+                            boxes = results[0].boxes
+                            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+                            if boxes is not None and len(boxes) > 0:
+                                st.image(results[0].plot(), caption="🎀 Hasil Deteksi Objek 🎀", use_container_width=True)
+                                st.success("✅ Objek berhasil terdeteksi!")
+                            else:
+                                st.warning("🚫 Tidak ada objek yang terdeteksi.")
+                                st.info("💡 Coba gunakan gambar Spongebob atau Patrick untuk hasil terbaik.")
+                            st.markdown('</div>', unsafe_allow_html=True)
+                    else:
+                        with st.spinner(f"🧠 Mengklasifikasi {file.name}..."):
+                            img_resized = img.resize((128, 128))
+                            img_array = image.img_to_array(img_resized)
+                            img_array = np.expand_dims(img_array, axis=0) / 255.0
+
+                            prediction = classifier.predict(img_array)
+                            class_index = np.argmax(prediction)
+                            confidence = np.max(prediction)
+
+                            labels = ["Indoor", "Outdoor"]
+                            predicted_label = labels[class_index]
+
+                            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+                            st.write(f"🎯 *Hasil Prediksi:* **{predicted_label}** ({confidence:.2f})")
+                            st.progress(float(confidence))
+                            if confidence > 0.85:
+                                st.success("🌈 Model sangat yakin dengan hasil prediksi ini!")
+                            elif confidence > 0.6:
+                                st.warning("🌤 Model agak ragu, tapi masih cukup yakin.")
+                            else:
+                                st.error("😅 Model tidak yakin — mungkin ini bukan gambar indoor/outdoor.")
+                                st.markdown("💡 *Saran:* Gunakan gambar yang lebih jelas 📷")
+                            st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================
 # FOOTER
